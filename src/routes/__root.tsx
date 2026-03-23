@@ -64,6 +64,12 @@ function RootLayout() {
         theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : ""
       }`}
     >
+      {/* Window drag region — thin bar at very top */}
+      <div
+        data-tauri-drag-region
+        className="absolute left-0 right-0 top-0 z-50 h-3"
+        style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
+      />
       <AuthGuard>
         <ApiProvider>
           <Sidebar onOpenCommandPalette={() => setCmdkOpen(true)} />

@@ -1,4 +1,16 @@
 // Google Drive types
+export interface SharedDrive {
+  id: string;
+  name: string;
+  colorRgb?: string;
+  backgroundImageLink?: string;
+}
+
+export interface SharedDriveList {
+  drives: SharedDrive[];
+  nextPageToken?: string;
+}
+
 export interface DriveFile {
   id: string;
   name: string;

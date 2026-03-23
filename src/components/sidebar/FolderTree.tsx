@@ -1,49 +1,134 @@
-import { useDriveFiles } from "@/lib/hooks/use-drive-files";
-import { isFolder } from "@/lib/google/types";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronRight, HardDrive, Users } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useDriveFiles, useSharedDrives } from "@/lib/hooks/use-drive-files";
 import { FolderNode } from "./FolderNode";
+import { isFolder } from "@/lib/google/types";
+import type { SharedDrive } from "@/lib/google/types";
 
-export function FolderTree() {
-  const { data, isLoading, isError } = useDriveFiles("root");
-
-  const files = data?.files ?? [];
-  const folders = files.filter((f) => isFolder(f.mimeType));
-  const nonFolders = files.filter((f) => !isFolder(f.mimeType));
-  const sorted = [...folders, ...nonFolders];
+function SharedDriveNode({ drive }: { drive: SharedDrive }) {
+  const [expanded, setExpanded] = useState(false);
+  const { data, isLoading } = useDriveFiles(drive.id, expanded, drive.id);
+  const children = expanded ? (data?.files ?? []) : [];
 
   return (
-    <div className="flex flex-col">
-      <div className="px-2 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-text-muted">
-        My Drive
+    <div>
+      <div className="group flex cursor-pointer items-center gap-1 rounded-md py-1 pr-2 text-sm text-text-secondary transition-colors hover:bg-tertiary hover:text-text-primary" style={{ paddingLeft: "4px" }}>
+        <span
+          className="flex h-4 w-4 shrink-0 items-center justify-center"
+          onClick={() => setExpanded((prev) => !prev)}
+        >
+          <motion.span
+            animate={{ rotate: expanded ? 90 : 0 }}
+            transition={{ duration: 0.15 }}
+            className="flex"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </motion.span>
+        </span>
+        <Link
+          to="/folder/$folderId"
+          params={{ folderId: drive.id }}
+          className="flex flex-1 items-center gap-1 truncate"
+        >
+          <Users className="h-4 w-4 shrink-0 text-blue-400" />
+          <span className="truncate">{drive.name}</span>
+        </Link>
+        {isLoading && (
+          <span className="h-2 w-2 animate-pulse rounded-full bg-text-muted" />
+        )}
       </div>
 
-      {isLoading && (
-        <div className="space-y-1 px-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-6 animate-pulse rounded bg-bg-tertiary"
-              style={{ width: `${60 + i * 8}%` }}
-            />
-          ))}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            key="children"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            style={{ overflow: "hidden" }}
+          >
+            {!isLoading && children.length === 0 && (
+              <div className="py-1 text-xs text-text-muted" style={{ paddingLeft: "36px" }}>
+                Empty drive
+              </div>
+            )}
+            {children.map((child) => (
+              <FolderNode key={child.id} file={child} depth={1} />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
-      {isError && (
-        <div className="px-3 py-2 text-xs text-amber">
-          Failed to load Drive files
-        </div>
-      )}
+export function FolderTree() {
+  const { data: myDriveData, isLoading: myDriveLoading, isError: myDriveError } = useDriveFiles("root");
+  const { data: sharedDrivesData, isLoading: sharedDrivesLoading } = useSharedDrives();
 
-      {!isLoading && !isError && (
-        <div className="px-1">
-          {sorted.map((file) => (
-            <FolderNode key={file.id} file={file} depth={0} />
-          ))}
-          {sorted.length === 0 && (
-            <div className="px-3 py-2 text-xs text-text-muted">
-              No files found
-            </div>
-          )}
+  const myDriveFiles = myDriveData?.files ?? [];
+  const folders = myDriveFiles.filter((f) => isFolder(f.mimeType));
+  const nonFolders = myDriveFiles.filter((f) => !isFolder(f.mimeType));
+  const sortedMyDrive = [...folders, ...nonFolders];
+
+  const sharedDrives = sharedDrivesData?.drives ?? [];
+
+  return (
+    <div className="flex flex-col gap-2">
+      {/* My Drive */}
+      <div>
+        <div className="flex items-center gap-1.5 px-2 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-text-muted">
+          <HardDrive className="h-3 w-3" />
+          My Drive
+        </div>
+
+        {myDriveLoading && (
+          <div className="space-y-1 px-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="h-6 animate-pulse rounded bg-bg-tertiary"
+                style={{ width: `${60 + i * 8}%` }}
+              />
+            ))}
+          </div>
+        )}
+
+        {myDriveError && (
+          <div className="px-3 py-2 text-xs text-amber">
+            Failed to load Drive files
+          </div>
+        )}
+
+        {!myDriveLoading && !myDriveError && (
+          <div className="px-1">
+            {sortedMyDrive.map((file) => (
+              <FolderNode key={file.id} file={file} depth={0} />
+            ))}
+            {sortedMyDrive.length === 0 && (
+              <div className="px-3 py-2 text-xs text-text-muted">
+                No files found
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Shared Drives */}
+      {!sharedDrivesLoading && sharedDrives.length > 0 && (
+        <div>
+          <div className="flex items-center gap-1.5 px-2 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-text-muted">
+            <Users className="h-3 w-3" />
+            Shared Drives
+          </div>
+          <div className="px-1">
+            {sharedDrives.map((drive) => (
+              <SharedDriveNode key={drive.id} drive={drive} />
+            ))}
+          </div>
         </div>
       )}
     </div>

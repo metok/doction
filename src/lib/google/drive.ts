@@ -1,5 +1,5 @@
 import { ApiClient } from "./api-client";
-import { DriveFile, DriveFileList } from "./types";
+import { DriveFile, DriveFileList, SharedDriveList } from "./types";
 
 const BASE_URL = "https://www.googleapis.com/drive/v3";
 
@@ -10,19 +10,29 @@ export function createDriveApi(client: ApiClient) {
   async function listFiles(
     folderId: string = "root",
     pageToken?: string,
+    driveId?: string,
   ): Promise<DriveFileList> {
     const params = new URLSearchParams({
       q: `'${folderId}' in parents and trashed = false`,
       fields: `nextPageToken,files(${FILE_FIELDS})`,
       orderBy: "folder,name",
       pageSize: "200",
+      supportsAllDrives: "true",
+      includeItemsFromAllDrives: "true",
     });
+    if (driveId) {
+      params.set("corpora", "drive");
+      params.set("driveId", driveId);
+    }
     if (pageToken) params.set("pageToken", pageToken);
     return client.get<DriveFileList>(`${BASE_URL}/files?${params}`);
   }
 
   async function getFile(fileId: string): Promise<DriveFile> {
-    const params = new URLSearchParams({ fields: FILE_FIELDS });
+    const params = new URLSearchParams({
+      fields: FILE_FIELDS,
+      supportsAllDrives: "true",
+    });
     return client.get<DriveFile>(`${BASE_URL}/files/${fileId}?${params}`);
   }
 
@@ -31,8 +41,14 @@ export function createDriveApi(client: ApiClient) {
       q: `fullText contains '${query.replace(/'/g, "\\'")}' and trashed = false`,
       fields: `nextPageToken,files(${FILE_FIELDS})`,
       pageSize: "50",
+      supportsAllDrives: "true",
+      includeItemsFromAllDrives: "true",
     });
     return client.get<DriveFileList>(`${BASE_URL}/files?${params}`);
+  }
+
+  async function listSharedDrives(): Promise<SharedDriveList> {
+    return client.get<SharedDriveList>(`${BASE_URL}/drives?pageSize=100`);
   }
 
   async function getStarredFiles(): Promise<DriveFileList> {
@@ -78,5 +94,6 @@ export function createDriveApi(client: ApiClient) {
     getTrashedFiles,
     getFilePath,
     getDownloadUrl,
+    listSharedDrives,
   };
 }

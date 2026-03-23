@@ -3,14 +3,24 @@ import { useApi } from "../api-context";
 
 const STALE_TIME = 2 * 60 * 1000; // 2 minutes
 
-export function useDriveFiles(folderId: string = "root", enabled = true) {
+export function useDriveFiles(folderId: string = "root", enabled = true, driveId?: string) {
   const { drive } = useApi();
 
   return useQuery({
-    queryKey: ["drive", "files", folderId],
-    queryFn: () => drive.listFiles(folderId),
+    queryKey: ["drive", "files", folderId, driveId],
+    queryFn: () => drive.listFiles(folderId, undefined, driveId),
     enabled,
     staleTime: STALE_TIME,
+  });
+}
+
+export function useSharedDrives() {
+  const { drive } = useApi();
+
+  return useQuery({
+    queryKey: ["drive", "shared-drives"],
+    queryFn: () => drive.listSharedDrives(),
+    staleTime: 1000 * 60 * 5, // 5 minutes, shared drives rarely change
   });
 }
 

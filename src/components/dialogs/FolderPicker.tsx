@@ -4,8 +4,7 @@ import { Search, Folder, Users, ChevronRight, HardDrive, Clock, Star, X } from "
 import { useDriveFiles, useSharedDrives } from "@/lib/hooks/use-drive-files";
 import { useRecentStore } from "@/lib/stores/recent";
 import { useFavoritesStore } from "@/lib/stores/favorites";
-import { isFolder, MIME_TYPES } from "@/lib/google/types";
-import type { DriveFile, SharedDrive } from "@/lib/google/types";
+import { isFolder } from "@/lib/google/types";
 import { useSearch } from "@/lib/hooks/use-search";
 
 interface FolderPickerProps {

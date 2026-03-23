@@ -75,7 +75,7 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
-          target: ${{ matrix.target }}
+          args: "--target ${{ matrix.target }}"
 
   publish-release:
     needs: [create-release, build]

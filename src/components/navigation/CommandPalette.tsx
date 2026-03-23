@@ -42,7 +42,7 @@ function getFilePath(file: DriveFile): string {
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const router = useRouter();
   const { addFile } = useRecentStore();
   const recentFiles = useRecentStore((s) => s.files).slice(0, 5);

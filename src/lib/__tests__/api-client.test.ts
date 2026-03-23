@@ -12,7 +12,7 @@ describe("ApiClient", () => {
     const client = new ApiClient(getToken);
 
     const mockResponse = { data: "test" };
-    const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValue(
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify(mockResponse), {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -38,7 +38,7 @@ describe("ApiClient", () => {
     let maxActive = 0;
     let currentActive = 0;
 
-    vi.spyOn(global, "fetch").mockImplementation(async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
       currentActive++;
       maxActive = Math.max(maxActive, currentActive);
 
@@ -77,7 +77,7 @@ describe("ApiClient", () => {
       },
     };
 
-    vi.spyOn(global, "fetch").mockImplementation(() =>
+    vi.spyOn(globalThis, "fetch").mockImplementation(() =>
       Promise.resolve(
         new Response(JSON.stringify(errorBody), {
           status: 404,

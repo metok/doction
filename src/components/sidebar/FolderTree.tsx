@@ -119,53 +119,6 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
   );
 }
 
-function CollapsibleSection({
-  id,
-  icon: Icon,
-  label,
-  children,
-}: {
-  id: string;
-  icon: React.ElementType;
-  label: string;
-  children: React.ReactNode;
-}) {
-  const expanded = useTreeStateStore((s) => s.isExpanded(id));
-  const toggle = useTreeStateStore((s) => s.toggle);
-
-  return (
-    <div>
-      <button
-        className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-        onClick={() => toggle(id)}
-      >
-        <Icon className="h-4 w-4 shrink-0" />
-        <span className="flex-1 text-left">{label}</span>
-        <motion.span
-          animate={{ rotate: expanded ? 90 : 0 }}
-          transition={{ duration: 0.15 }}
-          className="flex text-text-muted"
-        >
-          <ChevronRight className="h-3.5 w-3.5" />
-        </motion.span>
-      </button>
-      <AnimatePresence initial={false}>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            style={{ overflow: "hidden" }}
-          >
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
 /** Shared Drives — self-contained collapsible section */
 export function SharedDrivesTree() {
   const { data: sharedDrivesData, isLoading: sharedDrivesLoading } = useSharedDrives();

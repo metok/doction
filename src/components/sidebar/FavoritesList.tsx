@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { isFolder, isDocument, isSpreadsheet, isImage, isPdf } from "@/lib/google/types";
+import { isFolder, isDocument, isSpreadsheet, isImage } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
 import { Folder, FileText, Sheet, Image, File, Star, X } from "lucide-react";
 import { useFavoritesStore } from "@/lib/stores/favorites";
@@ -37,7 +37,7 @@ export function FavoritesList() {
           <div key={file.id} className="group flex cursor-pointer items-center gap-2 rounded-md px-3 py-[6px] text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary">
             <Link
               to={route.to}
-              params={route.params as Record<string, string>}
+              params={route.params as any}
               className="flex flex-1 items-center gap-2"
             >
               <FileIcon mimeType={file.mimeType} />

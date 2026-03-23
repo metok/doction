@@ -34,18 +34,18 @@ export function FavoritesList() {
       {files.map((file) => {
         const route = getRoute(file);
         return (
-          <div key={file.id} className="group flex items-center">
+          <div key={file.id} className="group flex cursor-pointer items-center gap-2 rounded-md px-3 py-[6px] text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary">
             <Link
               to={route.to}
               params={route.params as Record<string, string>}
-              className="flex flex-1 cursor-pointer items-center gap-2 rounded-md px-3 py-[6px] text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+              className="flex flex-1 items-center gap-2"
             >
               <FileIcon mimeType={file.mimeType} />
               <span className="truncate">{file.name}</span>
             </Link>
             <button
-              onClick={() => remove(file.id)}
-              className="mr-2 hidden cursor-pointer rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:text-text-primary"
+              onClick={(e) => { e.stopPropagation(); remove(file.id); }}
+              className="hidden shrink-0 cursor-pointer rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:text-text-primary"
               title="Remove from favorites"
             >
               <X className="h-3 w-3" />

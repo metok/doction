@@ -7,6 +7,8 @@ interface BreadcrumbsProps {
   path?: DriveFile[];
   isLoading?: boolean;
   file?: DriveFile;
+  rootLabel?: string;
+  rootTo?: string;
 }
 
 function formatFileSize(bytes: string | undefined): string {
@@ -30,7 +32,7 @@ function formatDate(iso: string | undefined): string {
   });
 }
 
-export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
+export function Breadcrumbs({ path, isLoading, file, rootLabel = "My Drive", rootTo = "/" }: BreadcrumbsProps) {
   const [starred, setStarred] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -94,15 +96,15 @@ export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
   return (
     <div className="relative flex items-center justify-between border-b border-border px-6 py-2.5">
       <nav className="flex items-center gap-1 text-sm">
-        {/* Always show My Drive as the root */}
+        {/* Root breadcrumb — "My Drive" by default, or the shared drive name */}
         {segments.length === 0 ? (
-          <span className="font-medium text-text-primary">My Drive</span>
+          <span className="font-medium text-text-primary">{rootLabel}</span>
         ) : (
           <Link
-            to="/"
+            to={rootTo}
             className="text-text-secondary transition-colors hover:text-text-primary"
           >
-            My Drive
+            {rootLabel}
           </Link>
         )}
 

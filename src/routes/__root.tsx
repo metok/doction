@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useRouter, useRouterState } from "@tanstack/react-router";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { ApiProvider } from "@/lib/api-context";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -13,6 +13,7 @@ function RootLayout() {
   const { theme } = usePreferencesStore();
   const [cmdkOpen, setCmdkOpen] = useState(false);
 
+  const router = useRouter();
   const routerState = useRouterState();
   const { addTab, setActive, tabs } = useTabsStore();
 
@@ -31,9 +32,25 @@ function RootLayout() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setCmdkOpen((prev) => !prev);
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === "k") {
+          e.preventDefault();
+          setCmdkOpen((prev) => !prev);
+        }
+        if (e.key === "w") {
+          e.preventDefault();
+          const active = tabs.find((t) => t.id === useTabsStore.getState().activeTabId);
+          if (active) {
+            useTabsStore.getState().closeTab(active.id);
+            const remaining = useTabsStore.getState().tabs;
+            const newActive = useTabsStore.getState().getActive();
+            if (newActive) {
+              router.navigate({ to: newActive.path });
+            } else if (remaining.length === 0) {
+              router.navigate({ to: "/" });
+            }
+          }
+        }
       }
     };
     window.addEventListener("keydown", handler);

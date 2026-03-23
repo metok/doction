@@ -2,6 +2,7 @@ import { useRouter } from "@tanstack/react-router";
 import { LayoutGrid, List, Folder, FileText, Sheet, Image, File, FileArchive, Presentation } from "lucide-react";
 import { usePreferencesStore } from "@/lib/stores/preferences";
 import { useRecentStore } from "@/lib/stores/recent";
+import { useDriveFiles } from "@/lib/hooks/use-drive-files";
 import {
   isFolder,
   isDocument,
@@ -108,6 +109,53 @@ function SmallFileIcon({ mimeType }: { mimeType: string }) {
   return <span className={`${config.iconColor} [&>svg]:h-4 [&>svg]:w-4`}>{config.icon}</span>;
 }
 
+/** Mini preview grid showing first few items inside a folder */
+function FolderPreview({ folderId }: { folderId: string }) {
+  const { data, isLoading } = useDriveFiles(folderId, true);
+  const children = data?.files?.slice(0, 4) ?? [];
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="grid grid-cols-2 gap-1.5 opacity-30">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-6 w-8 animate-pulse rounded bg-white/10" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (children.length === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-1">
+        <Folder className="h-7 w-7 text-purple-400/60" />
+        <span className="text-[10px] text-text-muted/60">Empty</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full items-center justify-center p-3">
+      <div className="grid grid-cols-2 gap-1.5">
+        {children.map((child) => {
+          const cfg = getFileTypeConfig(child.mimeType);
+          return (
+            <div
+              key={child.id}
+              className={`flex h-7 w-10 items-center justify-center rounded ${cfg.bgColor}`}
+            >
+              <span className={`${cfg.iconColor} [&>svg]:h-3 [&>svg]:w-3`}>
+                {cfg.icon}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function FolderView({ files, folderId = "root" }: FolderViewProps) {
   const { viewMode, setViewMode } = usePreferencesStore();
   const { addFile } = useRecentStore();
@@ -173,13 +221,19 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                   {...attributes}
                   {...listeners}
                   onClick={() => navigateTo(file)}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5"
+                  className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5"
                 >
-                  {/* Icon preview area */}
-                  <div className={`flex h-28 items-center justify-center ${config.bgColor}`}>
-                    <div className={`${config.iconColor} transition-transform duration-200 group-hover:scale-110`}>
-                      {config.icon}
-                    </div>
+                  {/* Preview area */}
+                  <div className={`h-28 ${config.bgColor}`}>
+                    {isFolder(file.mimeType) ? (
+                      <FolderPreview folderId={file.id} />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <div className={`${config.iconColor} transition-transform duration-200 group-hover:scale-110`}>
+                          {config.icon}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {/* Info */}
                   <div className="flex flex-col gap-1.5 p-4">
@@ -237,7 +291,7 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                 {...attributes}
                 {...listeners}
                 onClick={() => navigateTo(file)}
-                className="flex w-full items-center gap-3 border-b border-border/30 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-bg-tertiary/40"
+                className="flex w-full cursor-pointer items-center gap-3 border-b border-border/30 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-bg-tertiary/40"
               >
                 <SmallFileIcon mimeType={file.mimeType} />
                 <span className="flex-1 truncate text-sm text-text-primary">

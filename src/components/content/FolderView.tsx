@@ -127,7 +127,7 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 px-6">
+    <div className="flex flex-col gap-6 px-8 pb-10">
       {/* View toggle */}
       <div className="flex justify-end gap-1">
         <button
@@ -157,8 +157,8 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
       {/* Grid view */}
       {viewMode === "grid" && (
         <div
-          className="grid gap-4"
-          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
+          className="grid gap-5"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}
         >
           <SortableFileList
             folderId={folderId}
@@ -182,7 +182,7 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                     </div>
                   </div>
                   {/* Info */}
-                  <div className="flex flex-col gap-1 p-3.5">
+                  <div className="flex flex-col gap-1.5 p-4">
                     <p className="truncate text-sm font-medium text-text-primary">
                       {file.name}
                     </p>

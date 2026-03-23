@@ -14,7 +14,7 @@ function HomePage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
-      <div className="px-6 pb-2 pt-8">
+      <div className="px-8 pb-4 pt-10">
         <h1 className="text-2xl font-bold tracking-tight text-text-primary">Home</h1>
         <p className="mt-1.5 text-sm text-text-muted">
           Your Google Drive workspace

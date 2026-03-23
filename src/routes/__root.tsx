@@ -32,7 +32,7 @@ function RootLayout() {
         <ApiProvider>
           <Sidebar onOpenCommandPalette={() => setCmdkOpen(true)} />
           <CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} />
-          <main className="flex flex-1 flex-col overflow-hidden">
+          <main className="flex flex-1 flex-col overflow-y-auto bg-bg-primary">
             <Outlet />
           </main>
         </ApiProvider>

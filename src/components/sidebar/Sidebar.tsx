@@ -4,7 +4,11 @@ import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
 import { FolderTree } from "./FolderTree";
 
-export function Sidebar() {
+interface SidebarProps {
+  onOpenCommandPalette?: () => void;
+}
+
+export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
   const { collapsed, toggle } = useSidebarStore();
 
   return (
@@ -42,7 +46,7 @@ export function Sidebar() {
         <>
           {/* Search */}
           <div className="px-2 pb-1">
-            <SearchTrigger onOpen={() => {}} />
+            <SearchTrigger onOpen={() => onOpenCommandPalette?.()} />
           </div>
 
           {/* Quick Nav */}

@@ -56,7 +56,7 @@ export function AccountMenu() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-bg-tertiary"
+        className="flex min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-bg-tertiary"
       >
         {userInfo?.picture ? (
           <img src={userInfo.picture} alt={displayName} className="h-5 w-5 shrink-0 rounded object-cover" />
@@ -68,8 +68,8 @@ export function AccountMenu() {
             {displayName[0]?.toUpperCase()}
           </div>
         )}
-        <span className="text-[13px] font-semibold text-text-primary">{displayName}</span>
-        <ChevronDown className="h-3 w-3 text-text-muted" />
+        <span className="truncate text-[13px] font-semibold text-text-primary">{displayName}</span>
+        <ChevronDown className="h-3 w-3 shrink-0 text-text-muted" />
       </button>
 
       {open && (

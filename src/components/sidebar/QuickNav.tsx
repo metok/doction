@@ -1,9 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Clock, Star } from "lucide-react";
+import { Clock } from "lucide-react";
 
 const topItems = [
   { label: "Recent", icon: Clock, to: "/recent" },
-  { label: "Favorites", icon: Star, to: "/favorites" },
 ] as const;
 
 export function QuickNav() {

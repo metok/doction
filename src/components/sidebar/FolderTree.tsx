@@ -1,14 +1,15 @@
-import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Users } from "lucide-react";
+import { ChevronRight, Users, Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useSharedDrives } from "@/lib/hooks/use-drive-files";
 import { useDriveFiles } from "@/lib/hooks/use-drive-files";
 import { FolderNode } from "./FolderNode";
 import type { SharedDrive } from "@/lib/google/types";
+import { useTreeStateStore } from "@/lib/stores/tree-state";
 
 function SharedDriveNode({ drive }: { drive: SharedDrive }) {
-  const [expanded, setExpanded] = useState(false);
+  const expanded = useTreeStateStore((s) => s.isExpanded(drive.id));
+  const toggle = useTreeStateStore((s) => s.toggle);
   const { data, isLoading } = useDriveFiles(drive.id, expanded, drive.id);
   const children = expanded ? (data?.files ?? []) : [];
 
@@ -20,7 +21,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
       >
         <span
           className="flex h-4 w-4 shrink-0 items-center justify-center"
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() => toggle(drive.id)}
         >
           <motion.span
             animate={{ rotate: expanded ? 90 : 0 }}
@@ -41,6 +42,16 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
         {isLoading && (
           <span className="h-2 w-2 animate-pulse rounded-full bg-text-muted" />
         )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(`https://docs.google.com/document/create?folder=${drive.id}`, "_blank");
+          }}
+          className="hidden shrink-0 rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
+          title="New doc in this drive"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
       </div>
 
       <AnimatePresence initial={false}>

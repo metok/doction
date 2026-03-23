@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -8,6 +7,7 @@ import {
   Sheet,
   Image,
   File,
+  Plus,
 } from "lucide-react";
 import { useDriveFiles } from "@/lib/hooks/use-drive-files";
 import {
@@ -18,6 +18,7 @@ import {
   isPdf,
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
+import { useTreeStateStore } from "@/lib/stores/tree-state";
 
 interface FolderNodeProps {
   file: DriveFile;
@@ -41,7 +42,8 @@ function FileIcon({ mimeType }: { mimeType: string }) {
 }
 
 export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
-  const [expanded, setExpanded] = useState(false);
+  const expanded = useTreeStateStore((s) => s.isExpanded(file.id));
+  const toggle = useTreeStateStore((s) => s.toggle);
   const router = useRouter();
   const isFolder = isFolderType(file.mimeType);
   const shouldFetch = isFolder && expanded;
@@ -58,7 +60,7 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
 
   function handleChevronClick(e: React.MouseEvent) {
     e.stopPropagation();
-    setExpanded((prev) => !prev);
+    toggle(file.id);
   }
 
   function handleNameClick() {
@@ -102,6 +104,19 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
 
         {isLoading && (
           <span className="h-2 w-2 animate-pulse rounded-full bg-text-muted" />
+        )}
+
+        {isFolder && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(`https://docs.google.com/document/create?folder=${file.id}`, "_blank");
+            }}
+            className="hidden shrink-0 rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
+            title="New doc in this folder"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
         )}
       </div>
 

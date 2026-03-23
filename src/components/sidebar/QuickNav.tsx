@@ -18,7 +18,6 @@ export function QuickNav() {
         return (
           <Link
             key={to}
-            // @ts-expect-error routes created in Task 8b
             to={to}
             className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
               isActive

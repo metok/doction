@@ -1,11 +1,54 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Users, HardDrive, Plus } from "lucide-react";
+import { ChevronRight, Users, HardDrive, Plus, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useSharedDrives, useDriveFiles } from "@/lib/hooks/use-drive-files";
 import { FolderNode } from "./FolderNode";
-import { isFolder } from "@/lib/google/types";
+import { isFolder, MIME_TYPES } from "@/lib/google/types";
 import type { SharedDrive } from "@/lib/google/types";
 import { useTreeStateStore } from "@/lib/stores/tree-state";
+import { useFavoritesStore } from "@/lib/stores/favorites";
+
+/** Convert SharedDrive to a DriveFile-like object for favorites store */
+function sharedDriveAsFile(drive: SharedDrive) {
+  return {
+    id: drive.id,
+    name: drive.name,
+    mimeType: MIME_TYPES.FOLDER,
+  };
+}
+
+function SharedDriveFavButton({ drive }: { drive: SharedDrive }) {
+  const isFav = useFavoritesStore((s) => s.isFavorite(drive.id));
+  const toggle = useFavoritesStore((s) => s.toggle);
+
+  return (
+    <div className="hidden shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:flex group-hover:opacity-100">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          toggle(sharedDriveAsFile(drive));
+        }}
+        className={`cursor-pointer rounded p-0.5 transition-colors ${
+          isFav ? "text-amber-400 hover:text-amber-300" : "text-text-muted hover:bg-bg-tertiary hover:text-amber-400"
+        }`}
+        title={isFav ? "Remove from favorites" : "Add to favorites"}
+      >
+        <Star className={`h-3.5 w-3.5 ${isFav ? "fill-amber-400" : ""}`} />
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          window.open(`https://docs.google.com/document/create?folder=${drive.id}`, "_blank");
+        }}
+        className="cursor-pointer rounded p-0.5 text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+        title="New doc in this drive"
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
 
 function SharedDriveNode({ drive }: { drive: SharedDrive }) {
   const expanded = useTreeStateStore((s) => s.isExpanded(drive.id));
@@ -42,16 +85,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
         {isLoading && (
           <span className="h-2 w-2 animate-pulse rounded-full bg-text-muted" />
         )}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            window.open(`https://docs.google.com/document/create?folder=${drive.id}`, "_blank");
-          }}
-          className="hidden shrink-0 cursor-pointer rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
-          title="New doc in this drive"
-        >
-          <Plus className="h-3.5 w-3.5" />
-        </button>
+        <SharedDriveFavButton drive={drive} />
       </div>
 
       <AnimatePresence initial={false}>

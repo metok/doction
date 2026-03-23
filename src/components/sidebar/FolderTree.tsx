@@ -96,18 +96,18 @@ function CollapsibleSection({
   return (
     <div>
       <button
-        className="flex w-full cursor-pointer items-center gap-1.5 px-2 py-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted transition-colors hover:text-text-primary"
+        className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
         onClick={() => toggle(id)}
       >
+        <Icon className="h-4 w-4 shrink-0" />
+        <span className="flex-1 text-left">{label}</span>
         <motion.span
           animate={{ rotate: expanded ? 90 : 0 }}
           transition={{ duration: 0.15 }}
-          className="flex"
+          className="flex text-text-muted"
         >
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3.5 w-3.5" />
         </motion.span>
-        <Icon className="h-3 w-3" />
-        {label}
       </button>
       <AnimatePresence initial={false}>
         {expanded && (

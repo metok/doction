@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Clock, Star } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Clock, Star, Eye, EyeOff } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
@@ -10,6 +10,29 @@ import { FavoritesList } from "./FavoritesList";
 import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { FolderPicker } from "@/components/dialogs/FolderPicker";
+import { useHiddenItemsStore } from "@/lib/stores/hidden-items";
+
+function HiddenToggle() {
+  const showHidden = useHiddenItemsStore((s) => s.showHidden);
+  const toggleShowHidden = useHiddenItemsStore((s) => s.toggleShowHidden);
+  const count = useHiddenItemsStore((s) => Object.keys(s.hiddenIds).length);
+
+  if (count === 0) return null;
+
+  return (
+    <button
+      onClick={toggleShowHidden}
+      className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors ${
+        showHidden
+          ? "bg-bg-tertiary text-text-primary"
+          : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+      }`}
+      title={showHidden ? `Hide ${count} hidden items` : `Show ${count} hidden items`}
+    >
+      {showHidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+    </button>
+  );
+}
 
 interface SidebarProps {
   onOpenCommandPalette?: () => void;
@@ -203,6 +226,8 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         >
           <Trash2 className="h-4 w-4" />
         </Link>
+
+        <HiddenToggle />
 
         <ThemeToggle />
       </div>

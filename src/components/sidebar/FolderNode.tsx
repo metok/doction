@@ -9,6 +9,7 @@ import {
   File,
   Plus,
   Star,
+  EyeOff,
 } from "lucide-react";
 import { useDriveFiles } from "@/lib/hooks/use-drive-files";
 import {
@@ -21,6 +22,7 @@ import {
 import type { DriveFile } from "@/lib/google/types";
 import { useTreeStateStore } from "@/lib/stores/tree-state";
 import { useFavoritesStore } from "@/lib/stores/favorites";
+import { useHiddenItemsStore } from "@/lib/stores/hidden-items";
 
 interface FolderNodeProps {
   file: DriveFile;
@@ -67,11 +69,17 @@ function FavoriteButton({ file }: { file: DriveFile }) {
 
 export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   const isFav = useFavoritesStore((s) => s.isFavorite(file.id));
+  const isHidden = useHiddenItemsStore((s) => s.isHidden(file.id));
+  const showHidden = useHiddenItemsStore((s) => s.showHidden);
+  const toggleHidden = useHiddenItemsStore((s) => s.toggle);
   const expanded = useTreeStateStore((s) => s.isExpanded(file.id));
   const toggle = useTreeStateStore((s) => s.toggle);
   const router = useRouter();
   const isFolder = isFolderType(file.mimeType);
   const shouldFetch = isFolder && expanded;
+
+  // Don't render if hidden (unless showHidden is on)
+  if (isHidden && !showHidden) return null;
 
   const { data, isLoading } = useDriveFiles(
     shouldFetch ? file.id : "",
@@ -103,7 +111,7 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   return (
     <div>
       <div
-        className="group flex cursor-pointer items-center gap-2 rounded-md py-[7px] pr-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+        className={`group flex cursor-pointer items-center gap-2 rounded-md py-[7px] pr-2 text-[13px] transition-colors hover:bg-bg-tertiary hover:text-text-primary ${isHidden ? "text-text-muted/50 italic" : "text-text-secondary"}`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={handleNameClick}
       >
@@ -139,6 +147,16 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
         {/* Hover actions */}
         <div className="hidden shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:flex group-hover:opacity-100">
           <FavoriteButton file={file} />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleHidden(file.id);
+            }}
+            className={`cursor-pointer rounded p-0.5 transition-colors ${isHidden ? "text-text-muted hover:text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
+            title={isHidden ? "Show item" : "Hide item"}
+          >
+            <EyeOff className="h-3.5 w-3.5" />
+          </button>
           {isFolder && (
             <button
               onClick={(e) => {

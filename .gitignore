@@ -6,3 +6,4 @@ src-tauri/target/
 .DS_Store
 .env.local
 .env*.local
+app-icon.png

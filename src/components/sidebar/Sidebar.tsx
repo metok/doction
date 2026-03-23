@@ -1,5 +1,7 @@
-import { PanelLeftClose, PanelLeftOpen, FilePlus } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, FilePlus, LogOut } from "lucide-react";
+import { useRouterState } from "@tanstack/react-router";
 import { useSidebarStore } from "@/lib/stores/sidebar";
+import { useAuth } from "@/lib/hooks/use-auth";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
 import { FolderTree } from "./FolderTree";
@@ -11,6 +13,11 @@ interface SidebarProps {
 
 export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
   const { collapsed, toggle } = useSidebarStore();
+  const { logout } = useAuth();
+  const routerState = useRouterState();
+  const currentFolderId = routerState.location.pathname.startsWith("/folder/")
+    ? routerState.location.pathname.split("/folder/")[1]
+    : undefined;
 
   return (
     <aside
@@ -32,6 +39,15 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         </div>
         <div className="flex items-center gap-1">
           {!collapsed && <ThemeToggle />}
+          {!collapsed && (
+            <button
+              onClick={logout}
+              className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+              aria-label="Log out"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          )}
           <button
             onClick={toggle}
             className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
@@ -49,12 +65,12 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
       {!collapsed && (
         <>
           {/* Search */}
-          <div className="px-2 pb-1">
+          <div className="px-2 pb-2">
             <SearchTrigger onOpen={() => onOpenCommandPalette?.()} />
           </div>
 
           {/* Quick Nav */}
-          <div className="px-2 py-1">
+          <div className="px-2 py-2">
             <QuickNav />
           </div>
 
@@ -62,16 +78,19 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
           <div className="border-b border-border mx-2 my-1" />
 
           {/* Folder Tree */}
-          <div className="flex-1 overflow-y-auto px-1 py-1">
+          <div className="flex-1 overflow-y-auto px-1 py-2">
             <FolderTree />
           </div>
 
           {/* New Page button */}
           <div className="border-t border-border p-2">
             <button
-              onClick={() =>
-                window.open("https://docs.google.com/document/create", "_blank")
-              }
+              onClick={() => {
+                const url = currentFolderId
+                  ? `https://docs.google.com/document/create?folder=${currentFolderId}`
+                  : "https://docs.google.com/document/create";
+                window.open(url, "_blank");
+              }}
               className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
             >
               <FilePlus className="h-4 w-4 shrink-0" />

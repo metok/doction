@@ -66,6 +66,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
 }
 
 export function FolderTree() {
+  const [myDriveExpanded, setMyDriveExpanded] = useState(true);
   const { data: myDriveData, isLoading: myDriveLoading, isError: myDriveError } = useDriveFiles("root");
   const { data: sharedDrivesData, isLoading: sharedDrivesLoading } = useSharedDrives();
 
@@ -80,51 +81,74 @@ export function FolderTree() {
     <div className="flex flex-col gap-2">
       {/* My Drive */}
       <div>
-        <div className="flex items-center gap-1.5 px-2 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-text-muted">
+        <div
+          className="group flex cursor-pointer items-center gap-1 px-2 py-2 text-xs font-medium uppercase tracking-wide text-text-muted transition-colors hover:text-text-primary"
+          onClick={() => setMyDriveExpanded((prev) => !prev)}
+        >
+          <motion.span
+            animate={{ rotate: myDriveExpanded ? 90 : 0 }}
+            transition={{ duration: 0.15 }}
+            className="flex h-3.5 w-3.5 shrink-0 items-center justify-center"
+          >
+            <ChevronRight className="h-3 w-3" />
+          </motion.span>
           <HardDrive className="h-3 w-3" />
           My Drive
         </div>
 
-        {myDriveLoading && (
-          <div className="space-y-1 px-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="h-6 animate-pulse rounded bg-bg-tertiary"
-                style={{ width: `${60 + i * 8}%` }}
-              />
-            ))}
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {myDriveExpanded && (
+            <motion.div
+              key="my-drive-children"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              style={{ overflow: "hidden" }}
+            >
+              {myDriveLoading && (
+                <div className="space-y-1 px-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="h-6 animate-pulse rounded bg-bg-tertiary"
+                      style={{ width: `${60 + i * 8}%` }}
+                    />
+                  ))}
+                </div>
+              )}
 
-        {myDriveError && (
-          <div className="px-3 py-2 text-xs text-amber">
-            Failed to load Drive files
-          </div>
-        )}
+              {myDriveError && (
+                <div className="px-3 py-2 text-xs text-amber">
+                  Failed to load Drive files
+                </div>
+              )}
 
-        {!myDriveLoading && !myDriveError && (
-          <div className="px-1">
-            {sortedMyDrive.map((file) => (
-              <FolderNode key={file.id} file={file} depth={0} />
-            ))}
-            {sortedMyDrive.length === 0 && (
-              <div className="px-3 py-2 text-xs text-text-muted">
-                No files found
-              </div>
-            )}
-          </div>
-        )}
+              {!myDriveLoading && !myDriveError && (
+                <div className="flex flex-col gap-1 px-1">
+                  {sortedMyDrive.map((file) => (
+                    <FolderNode key={file.id} file={file} depth={0} />
+                  ))}
+                  {sortedMyDrive.length === 0 && (
+                    <div className="px-3 py-2 text-xs text-text-muted">
+                      No files found
+                    </div>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Shared Drives */}
       {!sharedDrivesLoading && sharedDrives.length > 0 && (
         <div>
-          <div className="flex items-center gap-1.5 px-2 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-text-muted">
+          <div className="flex items-center gap-1.5 px-2 py-2 text-xs font-medium uppercase tracking-wide text-text-muted">
             <Users className="h-3 w-3" />
             Shared Drives
           </div>
-          <div className="px-1">
+          <div className="flex flex-col gap-1 px-1">
             {sharedDrives.map((drive) => (
               <SharedDriveNode key={drive.id} drive={drive} />
             ))}

@@ -12,14 +12,14 @@ export function QuickNav() {
   const { location } = useRouterState();
 
   return (
-    <nav className="flex flex-col gap-0.5">
+    <nav className="flex flex-col gap-1">
       {navItems.map(({ label, icon: Icon, to }) => {
         const isActive = location.pathname === to;
         return (
           <Link
             key={to}
             to={to}
-            className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
+            className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors ${
               isActive
                 ? "bg-tertiary text-text-primary"
                 : "text-text-secondary hover:bg-tertiary hover:text-text-primary"

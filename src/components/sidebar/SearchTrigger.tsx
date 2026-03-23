@@ -8,7 +8,7 @@ export function SearchTrigger({ onOpen }: SearchTriggerProps) {
   return (
     <button
       onClick={onOpen}
-      className="flex w-full items-center gap-2 rounded-md bg-tertiary px-3 py-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+      className="flex w-full items-center gap-2 rounded-md bg-tertiary px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
     >
       <Search className="h-3.5 w-3.5 shrink-0" />
       <span className="flex-1 text-left">Search...</span>

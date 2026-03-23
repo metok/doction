@@ -1,4 +1,4 @@
-import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2 } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Clock, Star } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
@@ -23,14 +23,74 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
   if (collapsed) {
     return (
-      <aside className="flex h-full w-12 min-w-12 flex-col items-center border-r border-border bg-bg-secondary py-3">
+      <aside className="flex h-full w-12 min-w-12 flex-col items-center border-r border-border bg-bg-secondary py-2">
+        {/* Expand */}
         <button
           onClick={toggle}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          aria-label="Expand sidebar"
+          title="Expand sidebar"
         >
           <PanelLeftOpen className="h-4 w-4" />
         </button>
+
+        {/* Search */}
+        <button
+          onClick={() => onOpenCommandPalette?.()}
+          className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+          title="Search (⌘K)"
+        >
+          <Search className="h-4 w-4" />
+        </button>
+
+        <div className="mx-2 my-2 w-5 border-b border-border/40" />
+
+        {/* Recent */}
+        <Link
+          to="/recent"
+          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/recent" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
+          title="Recent"
+        >
+          <Clock className="h-4 w-4" />
+        </Link>
+
+        {/* Favorites */}
+        <Link
+          to="/favorites"
+          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/favorites" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
+          title="Favorites"
+        >
+          <Star className="h-4 w-4" />
+        </Link>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Home */}
+        <Link
+          to="/"
+          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
+          title="Home"
+        >
+          <Home className="h-4 w-4" />
+        </Link>
+
+        {/* New Doc */}
+        <button
+          onClick={() => open(currentFolderId ? `https://docs.google.com/document/create?folder=${currentFolderId}` : "https://docs.google.com/document/create")}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-blue-400"
+          title="New Document"
+        >
+          <FileText className="h-4 w-4" />
+        </button>
+
+        {/* Trash */}
+        <Link
+          to="/trash"
+          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/trash" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
+          title="Trash"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Link>
       </aside>
     );
   }

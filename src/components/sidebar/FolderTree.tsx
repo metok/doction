@@ -158,8 +158,7 @@ export function SharedDrivesTree() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="overflow-y-auto"
-            style={{ maxHeight: "40vh" }}
+            className="overflow-hidden"
           >
             <div className="px-2">
               {sharedDrives.map((drive) => (
@@ -207,8 +206,7 @@ export function MyDriveTree() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="overflow-y-auto"
-            style={{ maxHeight: "40vh" }}
+            className="overflow-hidden"
           >
             {isLoading ? (
               <div className="space-y-1 px-4 py-1">

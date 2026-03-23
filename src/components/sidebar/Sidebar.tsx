@@ -70,22 +70,16 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
       {/* ── Separator ── */}
       <div className="mx-3 my-2 border-b border-border/40" />
 
-      {/* ── Spacer pushes drives to bottom ── */}
-      <div className="flex-1" />
-
-      {/* ── Bottom section: drives + trash + new page ── */}
-      <div className="flex flex-col border-t border-border/40">
-        {/* Shared Drives — collapsible */}
-        <div className="px-2">
+      {/* ── Drives area: takes remaining space, scrollable ── */}
+      <div className="flex min-h-0 flex-1 flex-col border-t border-border/40">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2">
           <SharedDrivesTree />
-        </div>
-
-        {/* My Drive — collapsible */}
-        <div className="px-2">
           <MyDriveTree />
         </div>
+      </div>
 
-        {/* Trash */}
+      {/* ── Always-visible bottom: Trash + New Page ── */}
+      <div className="flex flex-col border-t border-border/40">
         <Link
           to="/trash"
           className={`flex cursor-pointer items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${
@@ -98,7 +92,6 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
           <span>Trash</span>
         </Link>
 
-        {/* New Page */}
         <div className="p-3 pt-1">
           <button
             onClick={() => {

@@ -66,6 +66,7 @@ function FavoriteButton({ file }: { file: DriveFile }) {
 }
 
 export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
+  const isFav = useFavoritesStore((s) => s.isFavorite(file.id));
   const expanded = useTreeStateStore((s) => s.isExpanded(file.id));
   const toggle = useTreeStateStore((s) => s.toggle);
   const router = useRouter();
@@ -125,6 +126,11 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
         <FileIcon mimeType={file.mimeType} />
 
         <span className="flex-1 truncate">{file.name}</span>
+
+        {/* Favorite indicator — always visible */}
+        {isFav && (
+          <Star className="h-3 w-3 shrink-0 fill-amber-400 text-amber-400 group-hover:hidden" />
+        )}
 
         {isLoading && (
           <span className="h-2 w-2 animate-pulse rounded-full bg-text-muted" />

@@ -5,7 +5,7 @@
 <h1 align="center">Doction</h1>
 
 <p align="center">
-  <strong>Google Drive hat die Daten. Notion hat das Gefühl. Doction hat beides.</strong>
+  <strong>Google Drive has the data. Notion has the feel. Doction has both.</strong>
 </p>
 
 <p align="center">
@@ -16,9 +16,9 @@
 
 ---
 
-Google Drive ist mächtig. Aber mal ehrlich — die Oberfläche fühlt sich an wie 2012. Notion sieht geil aus, aber deine Daten gehören dann Notion. Cool.
+Google Drive is powerful. But let's be honest — the UI feels like 2012. Notion looks great, but your data belongs to Notion. Fun.
 
-Doction gibt dir das Notion-Feeling auf deinem eigenen Google Drive. Keine Migration. Kein Vendor Lock-in. Deine Dateien bleiben wo sie sind. Sie sehen nur endlich gut aus.
+Doction gives you the Notion experience on top of your own Google Drive. No migration. No vendor lock-in. Your files stay where they are. They just finally look good.
 
 <!-- TODO: Hero screenshot (dark mode, folder view with files) -->
 <!-- <p align="center"><img src="docs/screenshots/hero.png" width="800" alt="Doction workspace" /></p> -->
@@ -32,49 +32,49 @@ Doction gibt dir das Notion-Feeling auf deinem eigenen Google Drive. Keine Migra
 | Windows | [.msi](https://github.com/metok/doction/releases/latest) |
 | Linux | [.AppImage](https://github.com/metok/doction/releases/latest) |
 
-Installieren. Mit Google einloggen. Fertig. Keine Config, kein Setup, kein Bullshit.
+Install. Sign in with Google. Done. No config, no setup, no nonsense.
 
-## Was kann das Ding?
+## What can it do?
 
-### Dein Drive, aber schön
+### Your Drive, but beautiful
 
-Ordner werden zu Seiten. Google Docs rendern inline als saubere Dokumente. Sheets als Tabellen. Bilder und PDFs direkt in der App. Kein Tab-Chaos mehr.
+Folders become pages. Google Docs render inline as clean documents. Sheets as tables. Images and PDFs right in the app. No more tab chaos.
 
 <!-- TODO: Screenshot inline doc rendering -->
 
-### Cmd+K für alles
+### Cmd+K everything
 
-Fuzzy Search über dein gesamtes Drive. Dateien finden, bevor du den Namen ausgetippt hast.
+Fuzzy search across your entire Drive. Find files before you've finished typing.
 
 <!-- TODO: Screenshot command palette -->
 
-### Drag & Drop wie Notion
+### Drag & drop like Notion
 
-Dateien per Drag & Drop umsortieren. Dein Layout, deine Ordnung.
+Reorder files with drag & drop. Your layout, your rules.
 
 <!-- TODO: Screenshot drag and drop -->
 
-### Dark Mode
+### Dark mode
 
-Natürlich. Was sonst.
+Obviously. What else.
 
 <!-- TODO: Screenshot dark/light toggle -->
 
 ### Shared Drives
 
-Team-Drives direkt neben deinem persönlichen Drive. Alles an einem Ort.
+Team drives right next to your personal drive. Everything in one place.
 
 ## Open Source
 
-Doction ist MIT-lizenziert. Der Code ist offen. Du kannst reinschauen, forken, mitbauen — oder einfach nur nutzen.
+Doction is MIT-licensed. The code is open. Read it, fork it, build on it — or just use it.
 
-Gebaut mit Tauri, React und einer gesunden Portion Unzufriedenheit mit dem Status Quo.
+Built with Tauri, React, and a healthy dose of frustration with the status quo.
 
 ## Feedback?
 
-Bug gefunden? Feature-Idee? Einfach [Issue aufmachen](https://github.com/metok/doction/issues) oder auf [LinkedIn](https://www.linkedin.com/in/mehmet-tok/) anschreiben.
+Found a bug? Got a feature idea? Just [open an issue](https://github.com/metok/doction/issues) or hit me up on [LinkedIn](https://www.linkedin.com/in/mehmet-tok/).
 
-Gebaut von [Mehmet Emin Tok](https://www.linkedin.com/in/mehmet-tok/).
+Built by [Mehmet Emin Tok](https://www.linkedin.com/in/mehmet-tok/).
 
 ---
 

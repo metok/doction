@@ -180,13 +180,13 @@ function FileCard({
   return (
     <button
       onClick={onClick}
-      className="group flex w-40 shrink-0 flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5"
+      className="group flex w-40 shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5"
     >
       <div
-        className={`flex h-20 items-center justify-center ${config.bgColor} transition-opacity duration-200 group-hover:opacity-90`}
+        className={`flex h-20 items-center justify-center ${config.bgColor}`}
       >
         <span
-          className={`${config.iconColor} transition-transform duration-200 group-hover:scale-110`}
+          className={`${config.iconColor} [&>svg]:h-8 [&>svg]:w-8 transition-transform duration-200 group-hover:scale-110`}
         >
           {config.icon}
         </span>

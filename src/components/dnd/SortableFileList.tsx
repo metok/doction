@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -97,10 +97,9 @@ export function SortableFileList({
   const [localFiles, setLocalFiles] = useState<DriveFile[]>(sortedFiles);
 
   // Keep local files in sync when external files change
-  useMemo(() => {
+  useEffect(() => {
     setLocalFiles(sortedFiles);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files]);
+  }, [sortedFiles]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

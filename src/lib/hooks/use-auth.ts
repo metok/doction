@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   isAuthenticated,
@@ -16,20 +17,20 @@ export function useAuth() {
     staleTime: STALE_TIME,
   });
 
-  async function login() {
+  const login = useCallback(async () => {
     await startLogin();
     await queryClient.invalidateQueries({ queryKey: ["auth"] });
-  }
+  }, [queryClient]);
 
-  async function logout() {
+  const logout = useCallback(async () => {
     await logoutFn();
     await queryClient.invalidateQueries({ queryKey: ["auth"] });
     queryClient.clear();
-  }
+  }, [queryClient]);
 
-  async function refreshAuth() {
+  const refreshAuth = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["auth"] });
-  }
+  }, [queryClient]);
 
   return { authenticated, isLoading, login, logout, refreshAuth };
 }

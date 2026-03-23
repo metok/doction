@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "@/lib/api-context";
@@ -15,6 +16,8 @@ function FilePage() {
   const { data: meta, isLoading: metaLoading } = useFileMetadata(fileId);
   const { data: pathData, isLoading: pathLoading } = useFilePath(fileId);
 
+  const prevUrlRef = useRef<string>();
+
   const { data: objectUrl, isLoading: blobLoading } = useQuery({
     queryKey: ["drive", "blob", fileId],
     queryFn: async () => {
@@ -24,6 +27,19 @@ function FilePage() {
     enabled: !!fileId && !!meta && (isImage(meta.mimeType) || isPdf(meta.mimeType)),
     staleTime: 5 * 60 * 1000,
   });
+
+  // Revoke previous blob URL to prevent memory leak
+  useEffect(() => {
+    if (prevUrlRef.current && prevUrlRef.current !== objectUrl) {
+      URL.revokeObjectURL(prevUrlRef.current);
+    }
+    prevUrlRef.current = objectUrl;
+    return () => {
+      if (prevUrlRef.current) {
+        URL.revokeObjectURL(prevUrlRef.current);
+      }
+    };
+  }, [objectUrl]);
 
   const isLoading = metaLoading || blobLoading;
 

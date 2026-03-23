@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Command } from "cmdk";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, Folder, FileText, Sheet, Image, File } from "lucide-react";
@@ -37,11 +37,21 @@ function getFilePath(file: DriveFile): string {
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
   const router = useRouter();
   const { addFile } = useRecentStore();
   const recentFiles = useRecentStore((s) => s.files).slice(0, 5);
-  const { data: searchData } = useSearch(query);
+  const { data: searchData } = useSearch(debouncedQuery);
   const searchResults = searchData?.files ?? [];
+
+  // Debounce search query by 300ms
+  useEffect(() => {
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => clearTimeout(debounceTimer.current);
+  }, [query]);
 
   const handleSelect = useCallback(
     (file: DriveFile) => {

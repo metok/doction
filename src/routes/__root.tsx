@@ -23,8 +23,9 @@ function RootLayout() {
 
   return (
     <div
-      className={`flex h-screen overflow-hidden bg-gray-950 text-gray-100 ${
-        theme === "dark" ? "dark" : theme === "light" ? "light" : ""
+      className={`flex h-screen overflow-hidden ${
+        theme === "light" ? "light" :
+        theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : ""
       }`}
     >
       <AuthGuard>

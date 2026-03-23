@@ -3,6 +3,7 @@ import { useSidebarStore } from "@/lib/stores/sidebar";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
 import { FolderTree } from "./FolderTree";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface SidebarProps {
   onOpenCommandPalette?: () => void;
@@ -29,17 +30,20 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
             <span className="text-sm font-medium text-text-primary">My Workspace</span>
           )}
         </div>
-        <button
-          onClick={toggle}
-          className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? (
-            <PanelLeftOpen className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-4 w-4" />
-          )}
-        </button>
+        <div className="flex items-center gap-1">
+          {!collapsed && <ThemeToggle />}
+          <button
+            onClick={toggle}
+            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
 
       {!collapsed && (

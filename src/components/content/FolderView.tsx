@@ -69,7 +69,6 @@ export function FolderView({ files }: FolderViewProps) {
         params: { sheetId: file.id },
       });
     } else if (isImage(file.mimeType) || isPdf(file.mimeType)) {
-      // @ts-expect-error /file route created in later task
       router.navigate({ to: "/file/$fileId", params: { fileId: file.id } });
     }
   }

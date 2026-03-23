@@ -15,6 +15,7 @@ import {
   isDocument,
   isSpreadsheet,
   isImage,
+  isPdf,
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
 
@@ -67,6 +68,8 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
       router.navigate({ to: "/doc/$docId", params: { docId: file.id } });
     } else if (isSpreadsheet(file.mimeType)) {
       router.navigate({ to: "/sheet/$sheetId", params: { sheetId: file.id } });
+    } else if (isImage(file.mimeType) || isPdf(file.mimeType)) {
+      router.navigate({ to: "/file/$fileId", params: { fileId: file.id } });
     }
   }
 

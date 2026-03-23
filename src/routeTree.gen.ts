@@ -13,15 +13,11 @@ import { Route as TrashRouteImport } from './routes/trash'
 import { Route as RecentRouteImport } from './routes/recent'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FileFileIdRouteImport } from './routes/file.$fileId'
 import { Route as SheetSheetIdRouteImport } from './routes/sheet.$sheetId'
 import { Route as FolderFolderIdRouteImport } from './routes/folder.$folderId'
 import { Route as DocDocIdRouteImport } from './routes/doc.$docId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TrashRoute = TrashRouteImport.update({
   id: '/trash',
   path: '/trash',
@@ -35,6 +31,16 @@ const RecentRoute = RecentRouteImport.update({
 const FavoritesRoute = FavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FileFileIdRoute = FileFileIdRouteImport.update({
+  id: '/file/$fileId',
+  path: '/file/$fileId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SheetSheetIdRoute = SheetSheetIdRouteImport.update({
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/doc/$docId': typeof DocDocIdRoute
   '/folder/$folderId': typeof FolderFolderIdRoute
   '/sheet/$sheetId': typeof SheetSheetIdRoute
+  '/file/$fileId': typeof FileFileIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/doc/$docId': typeof DocDocIdRoute
   '/folder/$folderId': typeof FolderFolderIdRoute
   '/sheet/$sheetId': typeof SheetSheetIdRoute
+  '/file/$fileId': typeof FileFileIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,13 +88,39 @@ export interface FileRoutesById {
   '/doc/$docId': typeof DocDocIdRoute
   '/folder/$folderId': typeof FolderFolderIdRoute
   '/sheet/$sheetId': typeof SheetSheetIdRoute
+  '/file/$fileId': typeof FileFileIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/favorites' | '/recent' | '/trash' | '/doc/$docId' | '/folder/$folderId' | '/sheet/$sheetId'
+  fullPaths:
+    | '/'
+    | '/favorites'
+    | '/recent'
+    | '/trash'
+    | '/doc/$docId'
+    | '/folder/$folderId'
+    | '/sheet/$sheetId'
+    | '/file/$fileId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/favorites' | '/recent' | '/trash' | '/doc/$docId' | '/folder/$folderId' | '/sheet/$sheetId'
-  id: '__root__' | '/' | '/favorites' | '/recent' | '/trash' | '/doc/$docId' | '/folder/$folderId' | '/sheet/$sheetId'
+  to:
+    | '/'
+    | '/favorites'
+    | '/recent'
+    | '/trash'
+    | '/doc/$docId'
+    | '/folder/$folderId'
+    | '/sheet/$sheetId'
+    | '/file/$fileId'
+  id:
+    | '__root__'
+    | '/'
+    | '/favorites'
+    | '/recent'
+    | '/trash'
+    | '/doc/$docId'
+    | '/folder/$folderId'
+    | '/sheet/$sheetId'
+    | '/file/$fileId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,22 +131,16 @@ export interface RootRouteChildren {
   DocDocIdRoute: typeof DocDocIdRoute
   FolderFolderIdRoute: typeof FolderFolderIdRoute
   SheetSheetIdRoute: typeof SheetSheetIdRoute
+  FileFileIdRoute: typeof FileFileIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/favorites': {
-      id: '/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof FavoritesRouteImport
+    '/trash': {
+      id: '/trash'
+      path: '/trash'
+      fullPath: '/trash'
+      preLoaderRoute: typeof TrashRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recent': {
@@ -122,11 +150,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/trash': {
-      id: '/trash'
-      path: '/trash'
-      fullPath: '/trash'
-      preLoaderRoute: typeof TrashRouteImport
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/file/$fileId': {
+      id: '/file/$fileId'
+      path: '/file/$fileId'
+      fullPath: '/file/$fileId'
+      preLoaderRoute: typeof FileFileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sheet/$sheetId': {
@@ -161,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocDocIdRoute: DocDocIdRoute,
   FolderFolderIdRoute: FolderFolderIdRoute,
   SheetSheetIdRoute: SheetSheetIdRoute,
+  FileFileIdRoute: FileFileIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -7,15 +7,12 @@ export function LoginScreen() {
     <div className="flex min-h-screen items-center justify-center bg-gray-950">
       <div className="flex w-full max-w-sm flex-col items-center gap-8 p-8">
         {/* Doction branding */}
-        <div className="flex flex-col items-center gap-3">
-          <div
-            className="flex h-16 w-16 items-center justify-center rounded-2xl text-3xl font-bold text-white"
-            style={{
-              background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-            }}
-          >
-            D
-          </div>
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src="/icons/icon.png"
+            alt="Doction"
+            className="h-20 w-20 rounded-2xl"
+          />
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-white">Doction</h1>
             <p className="mt-1 text-sm text-gray-400">

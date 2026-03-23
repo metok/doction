@@ -1,4 +1,4 @@
-import { PanelLeftClose, PanelLeftOpen, FilePlus, Trash2, HardDrive } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, FilePlus, Trash2 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
@@ -77,19 +77,6 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
       {/* ── Bottom fixed section ── */}
       <div className="flex flex-col border-t border-border/40">
-        {/* My Drive */}
-        <Link
-          to="/"
-          className={`flex cursor-pointer items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${
-            pathname === "/"
-              ? "bg-bg-tertiary text-text-primary"
-              : "text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
-          }`}
-        >
-          <HardDrive className="h-4 w-4 shrink-0" />
-          <span>My Drive</span>
-        </Link>
-
         {/* Trash */}
         <Link
           to="/trash"

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, Star, MoreHorizontal, ExternalLink, Link2, Info } from "lucide-react";
 import type { DriveFile } from "@/lib/google/types";
+import { useFavoritesStore } from "@/lib/stores/favorites";
 
 interface BreadcrumbsProps {
   path?: DriveFile[];
@@ -31,7 +32,8 @@ function formatDate(iso: string | undefined): string {
 }
 
 export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
-  const [starred, setStarred] = useState(false);
+  const isFavorite = useFavoritesStore((s) => file ? s.isFavorite(file.id) : false);
+  const toggleFavorite = useFavoritesStore((s) => s.toggle);
   const [menuOpen, setMenuOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
@@ -127,14 +129,15 @@ export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
         {/* Star toggle */}
         <div className="relative">
           <button
-            title={starred ? "Remove from starred" : "Add to starred"}
-            onClick={() => setStarred((s) => !s)}
-            className="rounded p-1.5 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-            aria-label={starred ? "Remove from starred" : "Add to starred"}
+            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            onClick={() => file && toggleFavorite(file)}
+            disabled={!file}
+            className="rounded p-1.5 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary disabled:opacity-40"
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
             <Star
               className={`h-4 w-4 transition-colors ${
-                starred
+                isFavorite
                   ? "fill-amber-400 text-amber-400"
                   : ""
               }`}

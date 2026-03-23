@@ -112,7 +112,7 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
               e.stopPropagation();
               window.open(`https://docs.google.com/document/create?folder=${file.id}`, "_blank");
             }}
-            className="hidden shrink-0 rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
+            className="hidden shrink-0 cursor-pointer rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
             title="New doc in this folder"
           >
             <Plus className="h-3.5 w-3.5" />

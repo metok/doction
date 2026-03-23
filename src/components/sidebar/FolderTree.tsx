@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Users, Plus } from "lucide-react";
+import { ChevronRight, Users, HardDrive, Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { useSharedDrives } from "@/lib/hooks/use-drive-files";
-import { useDriveFiles } from "@/lib/hooks/use-drive-files";
+import { useSharedDrives, useDriveFiles } from "@/lib/hooks/use-drive-files";
 import { FolderNode } from "./FolderNode";
+import { isFolder } from "@/lib/google/types";
 import type { SharedDrive } from "@/lib/google/types";
 import { useTreeStateStore } from "@/lib/stores/tree-state";
 
@@ -47,7 +47,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
             e.stopPropagation();
             window.open(`https://docs.google.com/document/create?folder=${drive.id}`, "_blank");
           }}
-          className="hidden shrink-0 rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
+          className="hidden shrink-0 cursor-pointer rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
           title="New doc in this drive"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -79,40 +79,93 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
   );
 }
 
-export function FolderTree() {
-  const { data: sharedDrivesData, isLoading: sharedDrivesLoading } = useSharedDrives();
-  const sharedDrives = sharedDrivesData?.drives ?? [];
-
-  if (sharedDrivesLoading) {
-    return (
-      <div className="space-y-2 px-2 py-2">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-5 animate-pulse rounded bg-bg-tertiary"
-            style={{ width: `${50 + i * 12}%` }}
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (sharedDrives.length === 0) {
-    return (
-      <div className="px-3 py-4 text-xs text-text-muted">
-        No shared drives
-      </div>
-    );
-  }
+function CollapsibleSection({
+  id,
+  icon: Icon,
+  label,
+  children,
+}: {
+  id: string;
+  icon: React.ElementType;
+  label: string;
+  children: React.ReactNode;
+}) {
+  const expanded = useTreeStateStore((s) => s.isExpanded(id));
+  const toggle = useTreeStateStore((s) => s.toggle);
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center gap-1.5 px-2 py-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-        Shared Drives
-      </div>
-      {sharedDrives.map((drive) => (
-        <SharedDriveNode key={drive.id} drive={drive} />
-      ))}
+    <div>
+      <button
+        className="flex w-full cursor-pointer items-center gap-1.5 px-2 py-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted transition-colors hover:text-text-primary"
+        onClick={() => toggle(id)}
+      >
+        <motion.span
+          animate={{ rotate: expanded ? 90 : 0 }}
+          transition={{ duration: 0.15 }}
+          className="flex"
+        >
+          <ChevronRight className="h-3 w-3" />
+        </motion.span>
+        <Icon className="h-3 w-3" />
+        {label}
+      </button>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            style={{ overflow: "hidden" }}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export function FolderTree() {
+  const { data: myDriveData, isLoading: myDriveLoading } = useDriveFiles("root");
+  const { data: sharedDrivesData, isLoading: sharedDrivesLoading } = useSharedDrives();
+
+  const myDriveFiles = myDriveData?.files ?? [];
+  const folders = myDriveFiles.filter((f) => isFolder(f.mimeType));
+  const nonFolders = myDriveFiles.filter((f) => !isFolder(f.mimeType));
+  const sortedMyDrive = [...folders, ...nonFolders];
+
+  const sharedDrives = sharedDrivesData?.drives ?? [];
+
+  return (
+    <div className="flex flex-col gap-1">
+      {/* Shared Drives */}
+      {!sharedDrivesLoading && sharedDrives.length > 0 && (
+        <CollapsibleSection id="__shared_drives__" icon={Users} label="Shared Drives">
+          {sharedDrives.map((drive) => (
+            <SharedDriveNode key={drive.id} drive={drive} />
+          ))}
+        </CollapsibleSection>
+      )}
+
+      {/* My Drive */}
+      <CollapsibleSection id="__my_drive__" icon={HardDrive} label="My Drive">
+        {myDriveLoading ? (
+          <div className="space-y-1 px-2 py-1">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-5 animate-pulse rounded bg-bg-tertiary"
+                style={{ width: `${50 + i * 12}%` }}
+              />
+            ))}
+          </div>
+        ) : (
+          sortedMyDrive.map((file) => (
+            <FolderNode key={file.id} file={file} depth={0} />
+          ))
+        )}
+      </CollapsibleSection>
     </div>
   );
 }

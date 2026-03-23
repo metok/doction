@@ -1,5 +1,5 @@
 import { useRouter } from "@tanstack/react-router";
-import { LayoutGrid, List, Folder, FileText, Sheet, Image, File } from "lucide-react";
+import { LayoutGrid, List, Folder, FileText, Sheet, Image, File, FileArchive, Presentation } from "lucide-react";
 import { usePreferencesStore } from "@/lib/stores/preferences";
 import { useRecentStore } from "@/lib/stores/recent";
 import {
@@ -27,28 +27,85 @@ function formatDate(dateStr?: string): string {
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-  return `${Math.floor(diffDays / 365)} years ago`;
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+  }
+  if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30);
+    return `${months} ${months === 1 ? "month" : "months"} ago`;
+  }
+  const years = Math.floor(diffDays / 365);
+  return `${years} ${years === 1 ? "year" : "years"} ago`;
 }
 
-function FileIcon({
-  mimeType,
-  size = "sm",
-}: {
-  mimeType: string;
-  size?: "sm" | "lg";
-}) {
-  const cls = size === "lg" ? "h-10 w-10" : "h-4 w-4";
+// File type config for colors and icons
+function getFileTypeConfig(mimeType: string): {
+  icon: React.ReactNode;
+  bgColor: string;
+  iconColor: string;
+  label: string;
+} {
   if (isFolder(mimeType))
-    return <Folder className={`${cls} shrink-0 text-purple-400`} />;
+    return {
+      icon: <Folder className="h-6 w-6" />,
+      bgColor: "bg-purple-500/10",
+      iconColor: "text-purple-400",
+      label: "Folder",
+    };
   if (isDocument(mimeType))
-    return <FileText className={`${cls} shrink-0 text-accent`} />;
+    return {
+      icon: <FileText className="h-6 w-6" />,
+      bgColor: "bg-blue-500/10",
+      iconColor: "text-blue-400",
+      label: "Document",
+    };
   if (isSpreadsheet(mimeType))
-    return <Sheet className={`${cls} shrink-0 text-green`} />;
+    return {
+      icon: <Sheet className="h-6 w-6" />,
+      bgColor: "bg-emerald-500/10",
+      iconColor: "text-emerald-400",
+      label: "Spreadsheet",
+    };
+  if (mimeType.includes("presentation"))
+    return {
+      icon: <Presentation className="h-6 w-6" />,
+      bgColor: "bg-amber-500/10",
+      iconColor: "text-amber-400",
+      label: "Slides",
+    };
   if (isImage(mimeType))
-    return <Image className={`${cls} shrink-0 text-text-muted`} />;
-  return <File className={`${cls} shrink-0 text-text-muted`} />;
+    return {
+      icon: <Image className="h-6 w-6" />,
+      bgColor: "bg-pink-500/10",
+      iconColor: "text-pink-400",
+      label: "Image",
+    };
+  if (isPdf(mimeType))
+    return {
+      icon: <File className="h-6 w-6" />,
+      bgColor: "bg-red-500/10",
+      iconColor: "text-red-400",
+      label: "PDF",
+    };
+  if (mimeType.includes("zip") || mimeType.includes("archive") || mimeType.includes("compressed"))
+    return {
+      icon: <FileArchive className="h-6 w-6" />,
+      bgColor: "bg-orange-500/10",
+      iconColor: "text-orange-400",
+      label: "Archive",
+    };
+  return {
+    icon: <File className="h-6 w-6" />,
+    bgColor: "bg-gray-500/10",
+    iconColor: "text-gray-400",
+    label: "File",
+  };
+}
+
+function SmallFileIcon({ mimeType }: { mimeType: string }) {
+  const config = getFileTypeConfig(mimeType);
+  return <span className={`${config.iconColor} [&>svg]:h-4 [&>svg]:w-4`}>{config.icon}</span>;
 }
 
 export function FolderView({ files, folderId = "root" }: FolderViewProps) {
@@ -59,32 +116,26 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
   function navigateTo(file: DriveFile) {
     addFile(file);
     if (isFolder(file.mimeType)) {
-      router.navigate({
-        to: "/folder/$folderId",
-        params: { folderId: file.id },
-      });
+      router.navigate({ to: "/folder/$folderId", params: { folderId: file.id } });
     } else if (isDocument(file.mimeType)) {
       router.navigate({ to: "/doc/$docId", params: { docId: file.id } });
     } else if (isSpreadsheet(file.mimeType)) {
-      router.navigate({
-        to: "/sheet/$sheetId",
-        params: { sheetId: file.id },
-      });
+      router.navigate({ to: "/sheet/$sheetId", params: { sheetId: file.id } });
     } else if (isImage(file.mimeType) || isPdf(file.mimeType)) {
       router.navigate({ to: "/file/$fileId", params: { fileId: file.id } });
     }
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 px-6">
       {/* View toggle */}
       <div className="flex justify-end gap-1">
         <button
           onClick={() => setViewMode("grid")}
-          className={`rounded p-1.5 transition-colors ${
+          className={`rounded-lg p-2 transition-colors ${
             viewMode === "grid"
               ? "bg-bg-tertiary text-text-primary"
-              : "text-text-muted hover:text-text-secondary"
+              : "text-text-muted hover:bg-bg-tertiary/50 hover:text-text-secondary"
           }`}
           aria-label="Grid view"
         >
@@ -92,10 +143,10 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
         </button>
         <button
           onClick={() => setViewMode("list")}
-          className={`rounded p-1.5 transition-colors ${
+          className={`rounded-lg p-2 transition-colors ${
             viewMode === "list"
               ? "bg-bg-tertiary text-text-primary"
-              : "text-text-muted hover:text-text-secondary"
+              : "text-text-muted hover:bg-bg-tertiary/50 hover:text-text-secondary"
           }`}
           aria-label="List view"
         >
@@ -106,53 +157,75 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
       {/* Grid view */}
       {viewMode === "grid" && (
         <div
-          className="grid gap-3"
-          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}
+          className="grid gap-4"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
         >
           <SortableFileList
             folderId={folderId}
             files={files}
             viewMode="grid"
-            renderItem={(file, { setNodeRef, style, attributes, listeners }) => (
-              <button
-                ref={setNodeRef}
-                style={style}
-                {...attributes}
-                {...listeners}
-                key={file.id}
-                onClick={() => navigateTo(file)}
-                className="flex flex-col items-start gap-2 rounded-lg border border-border bg-bg-secondary p-3 text-left transition-colors hover:bg-bg-tertiary"
-              >
-                <FileIcon mimeType={file.mimeType} size="lg" />
-                <div className="w-full">
-                  <p className="truncate text-sm font-medium text-text-primary">
-                    {file.name}
-                  </p>
-                  {file.modifiedTime && (
-                    <p className="mt-0.5 text-xs text-text-muted">
-                      {formatDate(file.modifiedTime)}
+            renderItem={(file, { setNodeRef, style, attributes, listeners }) => {
+              const config = getFileTypeConfig(file.mimeType);
+              return (
+                <button
+                  ref={setNodeRef}
+                  style={style}
+                  {...attributes}
+                  {...listeners}
+                  onClick={() => navigateTo(file)}
+                  className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5"
+                >
+                  {/* Icon preview area */}
+                  <div className={`flex h-28 items-center justify-center ${config.bgColor}`}>
+                    <div className={`${config.iconColor} transition-transform duration-200 group-hover:scale-110`}>
+                      {config.icon}
+                    </div>
+                  </div>
+                  {/* Info */}
+                  <div className="flex flex-col gap-1 p-3.5">
+                    <p className="truncate text-sm font-medium text-text-primary">
+                      {file.name}
                     </p>
-                  )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-text-muted">{config.label}</span>
+                      {file.modifiedTime && (
+                        <>
+                          <span className="text-[11px] text-text-muted/40">·</span>
+                          <span className="text-[11px] text-text-muted">
+                            {formatDate(file.modifiedTime)}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            }}
+            renderOverlay={(file) => {
+              const config = getFileTypeConfig(file.mimeType);
+              return (
+                <div className="flex flex-col overflow-hidden rounded-xl border border-accent/30 bg-bg-secondary shadow-2xl shadow-accent/10">
+                  <div className={`flex h-28 items-center justify-center ${config.bgColor}`}>
+                    <div className={config.iconColor}>{config.icon}</div>
+                  </div>
+                  <div className="p-3.5">
+                    <p className="truncate text-sm font-medium text-text-primary">{file.name}</p>
+                  </div>
                 </div>
-              </button>
-            )}
-            renderOverlay={(file) => (
-              <div className="flex flex-col items-start gap-2 rounded-lg border border-border bg-bg-secondary p-3 text-left shadow-xl opacity-90">
-                <FileIcon mimeType={file.mimeType} size="lg" />
-                <div className="w-full">
-                  <p className="truncate text-sm font-medium text-text-primary">
-                    {file.name}
-                  </p>
-                </div>
-              </div>
-            )}
+              );
+            }}
           />
         </div>
       )}
 
       {/* List view */}
       {viewMode === "list" && (
-        <div className="flex flex-col gap-0.5">
+        <div className="overflow-hidden rounded-xl border border-border/60">
+          {/* List header */}
+          <div className="flex items-center gap-4 border-b border-border/60 bg-bg-secondary/50 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+            <span className="flex-1">Name</span>
+            <span className="w-24 text-right">Modified</span>
+          </div>
           <SortableFileList
             folderId={folderId}
             files={files}
@@ -163,27 +236,24 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                 style={style}
                 {...attributes}
                 {...listeners}
-                key={file.id}
                 onClick={() => navigateTo(file)}
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-bg-tertiary"
+                className="flex w-full items-center gap-3 border-b border-border/30 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-bg-tertiary/40"
               >
-                <FileIcon mimeType={file.mimeType} size="sm" />
+                <SmallFileIcon mimeType={file.mimeType} />
                 <span className="flex-1 truncate text-sm text-text-primary">
                   {file.name}
                 </span>
                 {file.modifiedTime && (
-                  <span className="shrink-0 text-xs text-text-muted">
+                  <span className="w-24 shrink-0 text-right text-xs text-text-muted">
                     {formatDate(file.modifiedTime)}
                   </span>
                 )}
               </button>
             )}
             renderOverlay={(file) => (
-              <div className="flex items-center gap-3 rounded-md border border-border bg-bg-secondary px-3 py-2 shadow-xl opacity-90">
-                <FileIcon mimeType={file.mimeType} size="sm" />
-                <span className="flex-1 truncate text-sm text-text-primary">
-                  {file.name}
-                </span>
+              <div className="flex items-center gap-3 rounded-lg border border-accent/30 bg-bg-secondary px-4 py-3 shadow-2xl shadow-accent/10">
+                <SmallFileIcon mimeType={file.mimeType} />
+                <span className="flex-1 truncate text-sm text-text-primary">{file.name}</span>
               </div>
             )}
           />

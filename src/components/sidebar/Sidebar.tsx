@@ -4,6 +4,7 @@ import { useSidebarStore } from "@/lib/stores/sidebar";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
 import { FolderTree } from "./FolderTree";
+import { FavoritesList } from "./FavoritesList";
 import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
@@ -58,6 +59,11 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
       {/* ── Quick Nav (Recent, Favorites) ── */}
       <div className="px-2">
         <QuickNav />
+      </div>
+
+      {/* ── Favorites ── */}
+      <div className="px-2">
+        <FavoritesList />
       </div>
 
       {/* ── Separator ── */}

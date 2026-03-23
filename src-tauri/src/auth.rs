@@ -10,7 +10,7 @@ use tauri_plugin_store::StoreExt;
 const GOOGLE_AUTH_URL: &str = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL: &str = "https://oauth2.googleapis.com/token";
 const STORE_PATH: &str = "auth.json";
-const SCOPES: &str = "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/documents.readonly https://www.googleapis.com/auth/spreadsheets.readonly";
+const SCOPES: &str = "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/spreadsheets openid email profile";
 
 /// OAuth credentials injected at build time via environment variables.
 /// Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET before building.

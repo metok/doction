@@ -4,7 +4,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
-import { FolderTree, MyDriveTree } from "./FolderTree";
+import { SharedDrivesTree, MyDriveTree } from "./FolderTree";
 import { FavoritesList } from "./FavoritesList";
 import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -70,14 +70,17 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
       {/* ── Separator ── */}
       <div className="mx-3 my-2 border-b border-border/40" />
 
-      {/* ── Main scrollable area: Shared Drives + Favorites content ── */}
-      <div className="flex-1 overflow-y-auto px-2 py-1">
-        <FolderTree />
-      </div>
+      {/* ── Spacer pushes drives to bottom ── */}
+      <div className="flex-1" />
 
-      {/* ── Bottom fixed section ── */}
+      {/* ── Bottom section: drives + trash + new page ── */}
       <div className="flex flex-col border-t border-border/40">
-        {/* My Drive — always visible, expandable */}
+        {/* Shared Drives — collapsible */}
+        <div className="px-2">
+          <SharedDrivesTree />
+        </div>
+
+        {/* My Drive — collapsible */}
         <div className="px-2">
           <MyDriveTree />
         </div>

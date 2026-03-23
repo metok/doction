@@ -20,8 +20,7 @@ Google Drive is powerful. But let's be honest — the UI feels like 2012. Notion
 
 Doction gives you the Notion experience on top of your own Google Drive. No migration. No vendor lock-in. Your files stay where they are. They just finally look good.
 
-<!-- TODO: Hero screenshot (dark mode, folder view with files) -->
-<!-- <p align="center"><img src="docs/screenshots/hero.png" width="800" alt="Doction workspace" /></p> -->
+<p align="center"><img src="docs/screenshots/hero.png" width="800" alt="Doction workspace" /></p>
 
 ## Download
 
@@ -40,29 +39,45 @@ Install. Sign in with Google. Done. No config, no setup, no nonsense.
 
 Folders become pages. Google Docs render inline as clean documents. Sheets as tables. Images and PDFs right in the app. No more tab chaos.
 
-<!-- TODO: Screenshot inline doc rendering -->
+<p align="center"><img src="docs/screenshots/inline-doc.png" width="800" alt="Inline document rendering" /></p>
+
+### Smart Dashboard
+
+Your workspace greets you. Recently opened files, favorites, and latest changes — all in one view. Jump right back in where you left off.
+
+### Tabs
+
+Open multiple files side by side. Browser-style tabs with back/forward navigation. Because one file at a time is so 2005.
 
 ### Cmd+K everything
 
 Fuzzy search across your entire Drive. Find files before you've finished typing.
 
-<!-- TODO: Screenshot command palette -->
+<p align="center"><img src="docs/screenshots/command-palette.png" width="600" alt="Command palette search" /></p>
 
 ### Drag & drop like Notion
 
 Reorder files with drag & drop. Your layout, your rules.
 
-<!-- TODO: Screenshot drag and drop -->
+### Create Docs & Sheets
+
+Create new Google Docs and Sheets directly from the app. Pick a folder, name it, done.
+
+### Activity Feed
+
+See what changed across all your drives. Real-time updates without refreshing.
 
 ### Dark mode
 
 Obviously. What else.
 
-<!-- TODO: Screenshot dark/light toggle -->
-
 ### Shared Drives
 
 Team drives right next to your personal drive. Everything in one place.
+
+### Hide what you don't need
+
+Right-click to hide files or entire drives from the sidebar. Your workspace, your focus.
 
 ## Open Source
 

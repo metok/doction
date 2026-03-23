@@ -13,16 +13,16 @@ const STORE_PATH: &str = "auth.json";
 const SCOPES: &str = "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/documents.readonly https://www.googleapis.com/auth/spreadsheets.readonly";
 
 /// OAuth credentials injected at build time via environment variables.
-/// Set GOOGLE_client_id() and GOOGLE_client_secret() before building.
-/// For local development, create a `.env.local` file (gitignored) and source it.
+/// Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET before building.
+/// For local development: source .env.local && npm run tauri dev
 fn client_id() -> &'static str {
-    option_env!("GOOGLE_client_id()")
-        .expect("GOOGLE_client_id() must be set at build time. See README for setup instructions.")
+    option_env!("GOOGLE_CLIENT_ID")
+        .expect("GOOGLE_CLIENT_ID must be set at build time. Run: source .env.local && npm run tauri dev")
 }
 
 fn client_secret() -> &'static str {
-    option_env!("GOOGLE_client_secret()")
-        .expect("GOOGLE_client_secret() must be set at build time. See README for setup instructions.")
+    option_env!("GOOGLE_CLIENT_SECRET")
+        .expect("GOOGLE_CLIENT_SECRET must be set at build time. Run: source .env.local && npm run tauri dev")
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

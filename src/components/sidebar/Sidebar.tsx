@@ -1,5 +1,6 @@
 import { PanelLeftClose, PanelLeftOpen, FilePlus, Trash2, HardDrive } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
@@ -109,7 +110,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
               const url = currentFolderId
                 ? `https://docs.google.com/document/create?folder=${currentFolderId}`
                 : "https://docs.google.com/document/create";
-              window.open(url, "_blank");
+              open(url);
             }}
             className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
           >

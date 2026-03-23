@@ -1,111 +1,81 @@
-# Doction
+<p align="center">
+  <img src="src-tauri/icons/128x128@2x.png" width="128" alt="Doction" />
+</p>
 
-A Notion-like desktop workspace powered by Google Drive. No proprietary database — your Google Drive **is** the database.
+<h1 align="center">Doction</h1>
 
-Folders become pages. Google Docs render inline. Sheets display as tables. Images and PDFs preview natively. Everything you already have in Drive, presented beautifully.
+<p align="center">
+  <strong>Google Drive hat die Daten. Notion hat das Gefühl. Doction hat beides.</strong>
+</p>
 
-## Features
+<p align="center">
+  <a href="https://github.com/metok/doction/releases/latest">Download</a> &nbsp;·&nbsp;
+  <a href="https://github.com/metok/doction/issues">Feedback</a> &nbsp;·&nbsp;
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
 
-- **Google Drive as workspace** — folders as pages, files as content blocks
-- **Inline Google Docs** — rendered as styled, readable documents
-- **Inline Google Sheets** — tabbed tables with formatted data
-- **Image & PDF preview** — zoom, pan, embedded viewing
-- **Command palette** — `Cmd+K` fuzzy search across all your Drive files
-- **Drag & drop** — reorder files within folders, Notion-style
-- **Shared Drives** — team drives listed alongside your personal drive
-- **Dark/Light/System theme** — with smooth, consistent styling
-- **Breadcrumb navigation** — full path with star, share, and info actions
-- **Auto-updater** — checks GitHub Releases for new versions
+---
 
-## Tech Stack
+Google Drive ist mächtig. Aber mal ehrlich — die Oberfläche fühlt sich an wie 2012. Notion sieht geil aus, aber deine Daten gehören dann Notion. Cool.
 
-| Layer | Technology |
-|-------|-----------|
-| Desktop | [Tauri v2](https://v2.tauri.app/) (Rust) |
-| Frontend | React 19 + TypeScript |
-| Bundler | Vite |
-| Routing | TanStack Router |
-| Data | TanStack Query |
-| State | Zustand |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Icons | Lucide React |
-| Animations | Framer Motion |
-| Drag & Drop | @dnd-kit |
+Doction gibt dir das Notion-Feeling auf deinem eigenen Google Drive. Keine Migration. Kein Vendor Lock-in. Deine Dateien bleiben wo sie sind. Sie sehen nur endlich gut aus.
 
-## Getting Started
+<!-- TODO: Hero screenshot (dark mode, folder view with files) -->
+<!-- <p align="center"><img src="docs/screenshots/hero.png" width="800" alt="Doction workspace" /></p> -->
 
-### Prerequisites
+## Download
 
-- [Node.js](https://nodejs.org/) 22+
-- [Rust](https://rustup.rs/) (stable toolchain)
-- A Google Cloud project with OAuth 2.0 credentials
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | [.dmg](https://github.com/metok/doction/releases/latest) |
+| macOS (Intel) | [.dmg](https://github.com/metok/doction/releases/latest) |
+| Windows | [.msi](https://github.com/metok/doction/releases/latest) |
+| Linux | [.AppImage](https://github.com/metok/doction/releases/latest) |
 
-### Google Cloud Setup
+Installieren. Mit Google einloggen. Fertig. Keine Config, kein Setup, kein Bullshit.
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project (or use an existing one)
-3. Enable these APIs: **Drive API**, **Docs API**, **Sheets API**
-4. Go to **APIs & Services > Credentials**
-5. Create an **OAuth 2.0 Client ID** (Application type: Desktop)
-6. Add `http://localhost` as an authorized redirect URI
-7. Go to **OAuth consent screen** > **Test users** and add your email
-8. Copy the Client ID and Client Secret
+## Was kann das Ding?
 
-### Installation
+### Dein Drive, aber schön
 
-```bash
-git clone https://github.com/metok/doction.git
-cd doction
-npm install
-```
+Ordner werden zu Seiten. Google Docs rendern inline als saubere Dokumente. Sheets als Tabellen. Bilder und PDFs direkt in der App. Kein Tab-Chaos mehr.
 
-### Configuration
+<!-- TODO: Screenshot inline doc rendering -->
 
-Create a `.env.local` file in the project root:
+### Cmd+K für alles
 
-```bash
-export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
-export GOOGLE_CLIENT_SECRET="your-client-secret"
-```
+Fuzzy Search über dein gesamtes Drive. Dateien finden, bevor du den Namen ausgetippt hast.
 
-### Run
+<!-- TODO: Screenshot command palette -->
 
-```bash
-source .env.local
-npm run tauri dev
-```
+### Drag & Drop wie Notion
 
-## Building
+Dateien per Drag & Drop umsortieren. Dein Layout, deine Ordnung.
 
-```bash
-npm run tauri build
-```
+<!-- TODO: Screenshot drag and drop -->
 
-Produces platform-specific binaries in `src-tauri/target/release/bundle/`.
+### Dark Mode
 
-## Project Structure
+Natürlich. Was sonst.
 
-```
-doction/
-├── src/                    # React frontend
-│   ├── components/         # UI components
-│   ├── lib/                # API clients, hooks, stores
-│   ├── routes/             # TanStack Router file-based routes
-│   └── styles/             # Tailwind CSS
-├── src-tauri/              # Tauri Rust backend
-│   └── src/                # OAuth, token management
-├── docs/                   # Design guide, specs, plans
-└── .github/workflows/      # CI/CD
-```
+<!-- TODO: Screenshot dark/light toggle -->
 
-## About
+### Shared Drives
 
-Doction is a personal project by [Mehmet Emin Tok](https://www.linkedin.com/in/mehmet-tok/).
+Team-Drives direkt neben deinem persönlichen Drive. Alles an einem Ort.
 
-This is an early-stage experiment in reimagining how we interact with Google Drive. The goal is to make Drive feel like a modern workspace — fast, keyboard-first, and beautiful — without locking your data into another proprietary system.
+## Open Source
 
-**I'm open to feedback.** If you have ideas, find bugs, or want to contribute, feel free to [open an issue](https://github.com/metok/doction/issues) or reach out on [LinkedIn](https://www.linkedin.com/in/mehmet-tok/).
+Doction ist MIT-lizenziert. Der Code ist offen. Du kannst reinschauen, forken, mitbauen — oder einfach nur nutzen.
 
-## License
+Gebaut mit Tauri, React und einer gesunden Portion Unzufriedenheit mit dem Status Quo.
 
-[MIT](LICENSE) — use it, fork it, build on it.
+## Feedback?
+
+Bug gefunden? Feature-Idee? Einfach [Issue aufmachen](https://github.com/metok/doction/issues) oder auf [LinkedIn](https://www.linkedin.com/in/mehmet-tok/) anschreiben.
+
+Gebaut von [Mehmet Emin Tok](https://www.linkedin.com/in/mehmet-tok/).
+
+---
+
+[MIT License](LICENSE)

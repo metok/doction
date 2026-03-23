@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { useDriveFiles, useFilePath } from "@/lib/hooks/use-drive-files";
+import { useDriveFiles, useFileMetadata, useFilePath } from "@/lib/hooks/use-drive-files";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { FolderView } from "@/components/content/FolderView";
 import { isFolder } from "@/lib/google/types";
@@ -11,6 +11,7 @@ function FolderPage() {
   const { data: filesData, isLoading: filesLoading, isError: filesError } =
     useDriveFiles(folderId);
   const { data: pathData, isLoading: pathLoading } = useFilePath(folderId);
+  const { data: folderMeta } = useFileMetadata(folderId);
 
   const files = filesData?.files ?? [];
   const folders = files.filter((f) => isFolder(f.mimeType));
@@ -19,7 +20,7 @@ function FolderPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <Breadcrumbs path={pathData} isLoading={pathLoading} />
+      <Breadcrumbs path={pathData} isLoading={pathLoading} file={folderMeta} />
 
       <div className="flex-1 overflow-y-auto p-6">
         {filesLoading && (

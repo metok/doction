@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSheetData } from "@/lib/hooks/use-sheet-data";
-import { useFilePath } from "@/lib/hooks/use-drive-files";
+import { useFileMetadata, useFilePath } from "@/lib/hooks/use-drive-files";
 import { SheetRenderer } from "@/components/content/SheetRenderer";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 
@@ -9,11 +9,12 @@ function SheetPage() {
 
   const { data: spreadsheet, isLoading, error } = useSheetData(sheetId);
   const { data: pathData, isLoading: pathLoading } = useFilePath(sheetId);
+  const { data: meta } = useFileMetadata(sheetId);
 
   if (isLoading) {
     return (
       <div className="flex flex-1 flex-col">
-        <Breadcrumbs isLoading={pathLoading} path={pathData} />
+        <Breadcrumbs isLoading={pathLoading} path={pathData} file={meta} />
         <div className="mx-auto w-full max-w-5xl px-8 py-10">
           <div className="mb-6 h-8 w-2/3 animate-pulse rounded bg-bg-tertiary" />
           <div className="mb-4 flex gap-1">
@@ -34,7 +35,7 @@ function SheetPage() {
   if (error) {
     return (
       <div className="flex flex-1 flex-col">
-        <Breadcrumbs path={pathData} />
+        <Breadcrumbs path={pathData} file={meta} />
         <div className="flex flex-1 items-center justify-center">
           <div className="text-center">
             <p className="text-lg font-semibold text-text-primary">Failed to load spreadsheet</p>
@@ -49,7 +50,7 @@ function SheetPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-auto">
-      <Breadcrumbs path={pathData} isLoading={pathLoading} />
+      <Breadcrumbs path={pathData} isLoading={pathLoading} file={meta} />
       <SheetRenderer spreadsheet={spreadsheet} />
     </div>
   );

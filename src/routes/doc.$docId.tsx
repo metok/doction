@@ -21,7 +21,7 @@ function DocPage() {
   if (docLoading) {
     return (
       <div className="flex flex-1 flex-col">
-        <Breadcrumbs isLoading={pathLoading} path={pathData} />
+        <Breadcrumbs isLoading={pathLoading} path={pathData} file={meta} />
         <div className="mx-auto w-full max-w-3xl px-8 py-10">
           <div className="mb-4 h-8 w-2/3 animate-pulse rounded bg-bg-tertiary" />
           <div className="mb-2 h-4 w-1/4 animate-pulse rounded bg-bg-tertiary" />
@@ -38,7 +38,7 @@ function DocPage() {
   if (docError) {
     return (
       <div className="flex flex-1 flex-col">
-        <Breadcrumbs path={pathData} />
+        <Breadcrumbs path={pathData} file={meta} />
         <div className="flex flex-1 items-center justify-center">
           <div className="text-center">
             <p className="text-lg font-semibold text-text-primary">Failed to load document</p>
@@ -51,7 +51,7 @@ function DocPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-auto">
-      <Breadcrumbs path={pathData} isLoading={pathLoading} />
+      <Breadcrumbs path={pathData} isLoading={pathLoading} file={meta} />
       <DocRenderer
         title={doc?.title ?? meta?.name}
         lastModified={meta?.modifiedTime}

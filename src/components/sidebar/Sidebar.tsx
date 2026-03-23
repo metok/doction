@@ -1,10 +1,10 @@
-import { PanelLeftClose, PanelLeftOpen, FilePlus, LogOut } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, FilePlus } from "lucide-react";
 import { useRouterState } from "@tanstack/react-router";
 import { useSidebarStore } from "@/lib/stores/sidebar";
-import { useAuth } from "@/lib/hooks/use-auth";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
 import { FolderTree } from "./FolderTree";
+import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface SidebarProps {
@@ -13,7 +13,6 @@ interface SidebarProps {
 
 export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
   const { collapsed, toggle } = useSidebarStore();
-  const { logout } = useAuth();
   const routerState = useRouterState();
   const currentFolderId = routerState.location.pathname.startsWith("/folder/")
     ? routerState.location.pathname.split("/folder/")[1]
@@ -39,15 +38,6 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         </div>
         <div className="flex items-center gap-1">
           {!collapsed && <ThemeToggle />}
-          {!collapsed && (
-            <button
-              onClick={logout}
-              className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-              aria-label="Log out"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          )}
           <button
             onClick={toggle}
             className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
@@ -81,6 +71,9 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
           <div className="flex-1 overflow-y-auto px-1 py-2">
             <FolderTree />
           </div>
+
+          {/* Account menu */}
+          <AccountMenu />
 
           {/* New Page button */}
           <div className="border-t border-border p-2">

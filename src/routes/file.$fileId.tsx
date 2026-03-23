@@ -46,7 +46,7 @@ function FilePage() {
   if (metaLoading) {
     return (
       <div className="flex flex-1 flex-col">
-        <Breadcrumbs isLoading={pathLoading} path={pathData} />
+        <Breadcrumbs isLoading={pathLoading} path={pathData} file={meta} />
         <div className="flex flex-1 items-center justify-center">
           <div className="h-8 w-8 animate-pulse rounded-full bg-bg-tertiary" />
         </div>
@@ -70,7 +70,7 @@ function FilePage() {
   if (!canPreview) {
     return (
       <div className="flex flex-1 flex-col">
-        <Breadcrumbs path={pathData} isLoading={pathLoading} />
+        <Breadcrumbs path={pathData} isLoading={pathLoading} file={meta} />
         <div className="flex flex-1 flex-col items-center justify-center gap-4">
           <p className="text-lg font-semibold text-text-primary">Preview not available</p>
           <p className="text-sm text-text-muted">
@@ -95,7 +95,7 @@ function FilePage() {
   if (isLoading || !objectUrl) {
     return (
       <div className="flex flex-1 flex-col">
-        <Breadcrumbs path={pathData} isLoading={pathLoading} />
+        <Breadcrumbs path={pathData} isLoading={pathLoading} file={meta} />
         <div className="flex flex-1 items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
@@ -108,7 +108,7 @@ function FilePage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <Breadcrumbs path={pathData} isLoading={pathLoading} />
+      <Breadcrumbs path={pathData} isLoading={pathLoading} file={meta} />
       {isImage(meta.mimeType) ? (
         <ImagePreview src={objectUrl} alt={meta.name} />
       ) : (

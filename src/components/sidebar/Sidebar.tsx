@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Clock, Star } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
@@ -8,6 +9,7 @@ import { SharedDrivesTree, MyDriveTree } from "./FolderTree";
 import { FavoritesList } from "./FavoritesList";
 import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { FolderPicker } from "@/components/dialogs/FolderPicker";
 
 interface SidebarProps {
   onOpenCommandPalette?: () => void;
@@ -20,6 +22,21 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
   const currentFolderId = pathname.startsWith("/folder/")
     ? pathname.split("/folder/")[1]
     : undefined;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerType, setPickerType] = useState<"doc" | "sheet">("doc");
+
+  function openNewPicker(type: "doc" | "sheet") {
+    setPickerType(type);
+    setPickerOpen(true);
+  }
+
+  function handleFolderSelected(folderId: string) {
+    setPickerOpen(false);
+    const url = pickerType === "doc"
+      ? `https://docs.google.com/document/create?folder=${folderId}`
+      : `https://docs.google.com/spreadsheets/create?folder=${folderId}`;
+    open(url);
+  }
 
   if (collapsed) {
     return (
@@ -76,7 +93,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
         {/* New Doc */}
         <button
-          onClick={() => open(currentFolderId ? `https://docs.google.com/document/create?folder=${currentFolderId}` : "https://docs.google.com/document/create")}
+          onClick={() => openNewPicker("doc")}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-blue-400"
           title="New Document"
         >
@@ -91,6 +108,14 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         >
           <Trash2 className="h-4 w-4" />
         </Link>
+
+        <FolderPicker
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onSelect={handleFolderSelected}
+          title={pickerType === "doc" ? "Create Document in..." : "Create Spreadsheet in..."}
+          currentFolderId={currentFolderId}
+        />
       </aside>
     );
   }
@@ -152,12 +177,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         </Link>
 
         <button
-          onClick={() => {
-            const url = currentFolderId
-              ? `https://docs.google.com/document/create?folder=${currentFolderId}`
-              : "https://docs.google.com/document/create";
-            open(url);
-          }}
+          onClick={() => openNewPicker("doc")}
           className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-blue-400"
           title="New Document"
         >
@@ -165,12 +185,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         </button>
 
         <button
-          onClick={() => {
-            const url = currentFolderId
-              ? `https://docs.google.com/spreadsheets/create?folder=${currentFolderId}`
-              : "https://docs.google.com/spreadsheets/create";
-            open(url);
-          }}
+          onClick={() => openNewPicker("sheet")}
           className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-emerald-400"
           title="New Spreadsheet"
         >
@@ -191,6 +206,15 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
         <ThemeToggle />
       </div>
+
+      {/* Folder picker dialog */}
+      <FolderPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={handleFolderSelected}
+        title={pickerType === "doc" ? "Create Document in..." : "Create Spreadsheet in..."}
+        currentFolderId={currentFolderId}
+      />
     </aside>
   );
 }

@@ -76,8 +76,8 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   return (
     <div>
       <div
-        className="group flex cursor-pointer items-center gap-1 rounded-md py-1 pr-2 text-sm text-text-secondary transition-colors hover:bg-tertiary hover:text-text-primary"
-        style={{ paddingLeft: `${depth * 16 + 4}px` }}
+        className="group flex cursor-pointer items-center gap-2 rounded-md py-1.5 pr-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+        style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={handleNameClick}
       >
         {/* Chevron or spacer */}

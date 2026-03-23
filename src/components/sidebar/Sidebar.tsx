@@ -35,21 +35,21 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
   return (
     <aside className="flex h-full w-[260px] min-w-[260px] flex-col border-r border-border bg-bg-secondary">
       {/* Header */}
-      <div className="flex h-12 items-center justify-between px-3 py-2">
-        <div className="flex items-center gap-2">
+      <div className="flex h-14 items-center justify-between px-4">
+        <div className="flex items-center gap-2.5">
           <div
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold text-white"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
             style={{ background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)" }}
           >
             D
           </div>
-          <span className="text-sm font-medium text-text-primary">My Workspace</span>
+          <span className="text-[13px] font-semibold text-text-primary">My Workspace</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <ThemeToggle />
           <button
             onClick={toggle}
-            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
             aria-label="Collapse sidebar"
           >
             <PanelLeftClose className="h-4 w-4" />
@@ -58,20 +58,20 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
       </div>
 
       {/* Search */}
-      <div className="px-3 pb-2">
+      <div className="px-3 pb-3">
         <SearchTrigger onOpen={() => onOpenCommandPalette?.()} />
       </div>
 
       {/* Quick Nav */}
-      <div className="px-2 py-1">
+      <div className="px-3">
         <QuickNav />
       </div>
 
       {/* Separator */}
-      <div className="mx-3 my-2 border-b border-border" />
+      <div className="mx-4 my-3 border-b border-border/60" />
 
       {/* Folder Tree */}
-      <div className="flex-1 overflow-y-auto px-2 py-1">
+      <div className="flex-1 overflow-y-auto px-3 py-1">
         <FolderTree />
       </div>
 

@@ -14,7 +14,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
 
   return (
     <div>
-      <div className="group flex cursor-pointer items-center gap-1 rounded-md py-1 pr-2 text-sm text-text-secondary transition-colors hover:bg-tertiary hover:text-text-primary" style={{ paddingLeft: "4px" }}>
+      <div className="group flex cursor-pointer items-center gap-2 rounded-md py-1.5 pr-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary" style={{ paddingLeft: "8px" }}>
         <span
           className="flex h-4 w-4 shrink-0 items-center justify-center"
           onClick={() => setExpanded((prev) => !prev)}
@@ -33,7 +33,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
           className="flex flex-1 items-center gap-1 truncate"
         >
           <Users className="h-4 w-4 shrink-0 text-blue-400" />
-          <span className="truncate">{drive.name}</span>
+          <span className="truncate font-medium">{drive.name}</span>
         </Link>
         {isLoading && (
           <span className="h-2 w-2 animate-pulse rounded-full bg-text-muted" />

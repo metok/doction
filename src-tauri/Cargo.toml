@@ -24,8 +24,9 @@ reqwest = { version = "0.12", features = ["json"] }
 rand = "0.8"
 sha2 = "0.10"
 base64 = "0.22"
+tokio = { version = "1", features = ["rt-multi-thread"] }
+url = "2"
 tauri-plugin-shell = "2"
-tauri-plugin-deep-link = "2"
 tauri-plugin-os = "2"
 tauri-plugin-store = "2"
 tauri-plugin-updater = "2"

@@ -37,11 +37,6 @@
     ]
   },
   "plugins": {
-    "deep-link": {
-      "desktop": {
-        "schemes": ["doction"]
-      }
-    },
     "updater": {
       "endpoints": [
         "https://github.com/metok/doction/releases/latest/download/latest.json"

@@ -1,13 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-shell";
 
 export async function startLogin(): Promise<void> {
-  const authUrl = await invoke<string>("start_auth");
-  await open(authUrl);
-}
-
-export async function handleAuthCallback(code: string): Promise<void> {
-  await invoke("exchange_code", { code });
+  // start_auth opens browser and starts localhost callback server internally
+  await invoke("start_auth");
 }
 
 export async function getAccessToken(): Promise<string> {

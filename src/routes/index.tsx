@@ -180,20 +180,16 @@ function FileCard({
   return (
     <button
       onClick={onClick}
-      className="group flex w-40 shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5"
+      className="group flex w-44 shrink-0 cursor-pointer items-center gap-3 rounded-xl border border-border/60 bg-bg-secondary px-3 py-3 text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/10"
     >
-      <div
-        className={`flex h-20 items-center justify-center ${config.bgColor}`}
-      >
-        <span
-          className={`${config.iconColor} [&>svg]:h-8 [&>svg]:w-8 transition-transform duration-200 group-hover:scale-110`}
-        >
-          {config.icon}
-        </span>
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${config.bgColor}`}>
+        <span className={config.iconColor}>{config.icon}</span>
       </div>
-      <div className="flex flex-col gap-0.5 px-3 py-2.5">
+      <div className="flex min-w-0 flex-col gap-0.5">
         <p className="truncate text-xs font-medium text-text-primary">{file.name}</p>
-        <p className="text-[10px] text-text-muted">{timeAgo(file.modifiedTime)}</p>
+        {file.modifiedTime && (
+          <p className="text-[10px] text-text-muted">{timeAgo(file.modifiedTime)}</p>
+        )}
       </div>
     </button>
   );

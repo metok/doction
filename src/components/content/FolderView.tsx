@@ -10,9 +10,11 @@ import {
   isPdf,
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
+import { SortableFileList } from "@/components/dnd/SortableFileList";
 
 interface FolderViewProps {
   files: DriveFile[];
+  folderId?: string;
 }
 
 function formatDate(dateStr?: string): string {
@@ -49,7 +51,7 @@ function FileIcon({
   return <File className={`${cls} shrink-0 text-text-muted`} />;
 }
 
-export function FolderView({ files }: FolderViewProps) {
+export function FolderView({ files, folderId = "root" }: FolderViewProps) {
   const { viewMode, setViewMode } = usePreferencesStore();
   const { addFile } = useRecentStore();
   const router = useRouter();
@@ -107,48 +109,84 @@ export function FolderView({ files }: FolderViewProps) {
           className="grid gap-3"
           style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}
         >
-          {files.map((file) => (
-            <button
-              key={file.id}
-              onClick={() => navigateTo(file)}
-              className="flex flex-col items-start gap-2 rounded-lg border border-border bg-bg-secondary p-3 text-left transition-colors hover:bg-bg-tertiary"
-            >
-              <FileIcon mimeType={file.mimeType} size="lg" />
-              <div className="w-full">
-                <p className="truncate text-sm font-medium text-text-primary">
-                  {file.name}
-                </p>
-                {file.modifiedTime && (
-                  <p className="mt-0.5 text-xs text-text-muted">
-                    {formatDate(file.modifiedTime)}
+          <SortableFileList
+            folderId={folderId}
+            files={files}
+            viewMode="grid"
+            renderItem={(file, { setNodeRef, style, attributes, listeners }) => (
+              <button
+                ref={setNodeRef}
+                style={style}
+                {...attributes}
+                {...listeners}
+                key={file.id}
+                onClick={() => navigateTo(file)}
+                className="flex flex-col items-start gap-2 rounded-lg border border-border bg-bg-secondary p-3 text-left transition-colors hover:bg-bg-tertiary"
+              >
+                <FileIcon mimeType={file.mimeType} size="lg" />
+                <div className="w-full">
+                  <p className="truncate text-sm font-medium text-text-primary">
+                    {file.name}
                   </p>
-                )}
+                  {file.modifiedTime && (
+                    <p className="mt-0.5 text-xs text-text-muted">
+                      {formatDate(file.modifiedTime)}
+                    </p>
+                  )}
+                </div>
+              </button>
+            )}
+            renderOverlay={(file) => (
+              <div className="flex flex-col items-start gap-2 rounded-lg border border-border bg-bg-secondary p-3 text-left shadow-xl opacity-90">
+                <FileIcon mimeType={file.mimeType} size="lg" />
+                <div className="w-full">
+                  <p className="truncate text-sm font-medium text-text-primary">
+                    {file.name}
+                  </p>
+                </div>
               </div>
-            </button>
-          ))}
+            )}
+          />
         </div>
       )}
 
       {/* List view */}
       {viewMode === "list" && (
         <div className="flex flex-col gap-0.5">
-          {files.map((file) => (
-            <button
-              key={file.id}
-              onClick={() => navigateTo(file)}
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-bg-tertiary"
-            >
-              <FileIcon mimeType={file.mimeType} size="sm" />
-              <span className="flex-1 truncate text-sm text-text-primary">
-                {file.name}
-              </span>
-              {file.modifiedTime && (
-                <span className="shrink-0 text-xs text-text-muted">
-                  {formatDate(file.modifiedTime)}
+          <SortableFileList
+            folderId={folderId}
+            files={files}
+            viewMode="list"
+            renderItem={(file, { setNodeRef, style, attributes, listeners }) => (
+              <button
+                ref={setNodeRef}
+                style={style}
+                {...attributes}
+                {...listeners}
+                key={file.id}
+                onClick={() => navigateTo(file)}
+                className="flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-bg-tertiary"
+              >
+                <FileIcon mimeType={file.mimeType} size="sm" />
+                <span className="flex-1 truncate text-sm text-text-primary">
+                  {file.name}
                 </span>
-              )}
-            </button>
-          ))}
+                {file.modifiedTime && (
+                  <span className="shrink-0 text-xs text-text-muted">
+                    {formatDate(file.modifiedTime)}
+                  </span>
+                )}
+              </button>
+            )}
+            renderOverlay={(file) => (
+              <div className="flex items-center gap-3 rounded-md border border-border bg-bg-secondary px-3 py-2 shadow-xl opacity-90">
+                <FileIcon mimeType={file.mimeType} size="sm" />
+                <span className="flex-1 truncate text-sm text-text-primary">
+                  {file.name}
+                </span>
+              </div>
+            )}
+          />
         </div>
       )}
     </div>

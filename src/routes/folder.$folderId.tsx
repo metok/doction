@@ -34,7 +34,7 @@ function FolderPage() {
           </div>
         )}
 
-        {!filesLoading && !filesError && <FolderView files={sorted} />}
+        {!filesLoading && !filesError && <FolderView files={sorted} folderId={folderId} />}
       </div>
     </div>
   );

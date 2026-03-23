@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { listen } from "@tauri-apps/api/event";
 import { useAuth } from "@/lib/hooks/use-auth";
+import { handleAuthCallback } from "@/lib/google/auth";
 import { LoginScreen } from "./LoginScreen";
 
 interface AuthGuardProps {
@@ -7,7 +9,28 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { authenticated, isLoading } = useAuth();
+  const { authenticated, isLoading, refreshAuth } = useAuth();
+
+  useEffect(() => {
+    const unlisten = listen<string[]>("deep-link://new-url", async (event) => {
+      const url = event.payload[0];
+      if (!url) return;
+      try {
+        const parsed = new URL(url);
+        const code = parsed.searchParams.get("code");
+        if (code) {
+          await handleAuthCallback(code);
+          refreshAuth();
+        }
+      } catch (e) {
+        console.error("Failed to handle auth callback:", e);
+      }
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [refreshAuth]);
 
   if (isLoading) {
     return (

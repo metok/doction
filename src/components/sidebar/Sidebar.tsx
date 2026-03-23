@@ -71,7 +71,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
       <div className="mx-4 my-3 border-b border-border/60" />
 
       {/* Folder Tree */}
-      <div className="flex-1 overflow-y-auto px-3 py-1">
+      <div className="flex-1 overflow-y-auto px-3 py-3">
         <FolderTree />
       </div>
 

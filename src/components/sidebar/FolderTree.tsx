@@ -14,7 +14,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
 
   return (
     <div>
-      <div className="group flex cursor-pointer items-center gap-2 rounded-md py-1.5 pr-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary" style={{ paddingLeft: "8px" }}>
+      <div className="group flex cursor-pointer items-center gap-2 rounded-md py-[7px] pr-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary" style={{ paddingLeft: "8px" }}>
         <span
           className="flex h-4 w-4 shrink-0 items-center justify-center"
           onClick={() => setExpanded((prev) => !prev)}
@@ -82,7 +82,7 @@ export function FolderTree() {
       {/* My Drive */}
       <div>
         <div
-          className="group flex cursor-pointer items-center gap-1 px-2 py-2 text-xs font-medium uppercase tracking-wide text-text-muted transition-colors hover:text-text-primary"
+          className="group flex cursor-pointer items-center gap-1 px-2 py-3 mb-1 text-xs font-medium uppercase tracking-wide text-text-muted transition-colors hover:text-text-primary"
           onClick={() => setMyDriveExpanded((prev) => !prev)}
         >
           <motion.span
@@ -144,7 +144,7 @@ export function FolderTree() {
       {/* Shared Drives */}
       {!sharedDrivesLoading && sharedDrives.length > 0 && (
         <div>
-          <div className="flex items-center gap-1.5 px-2 py-2 text-xs font-medium uppercase tracking-wide text-text-muted">
+          <div className="flex items-center gap-1.5 px-2 py-3 mb-1 text-xs font-medium uppercase tracking-wide text-text-muted">
             <Users className="h-3 w-3" />
             Shared Drives
           </div>

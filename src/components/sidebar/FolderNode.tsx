@@ -76,7 +76,7 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   return (
     <div>
       <div
-        className="group flex cursor-pointer items-center gap-2 rounded-md py-1.5 pr-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+        className="group flex cursor-pointer items-center gap-2 rounded-md py-[7px] pr-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={handleNameClick}
       >

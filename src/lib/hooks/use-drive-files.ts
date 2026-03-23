@@ -56,6 +56,16 @@ export function useStarredFiles() {
   });
 }
 
+export function useRecentlyModified() {
+  const { drive } = useApi();
+
+  return useQuery({
+    queryKey: ["drive-recently-modified"],
+    queryFn: () => drive.recentlyModified(),
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
 export function useTrashedFiles() {
   const { drive } = useApi();
 

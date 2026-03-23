@@ -61,6 +61,18 @@ export function createDriveApi(client: ApiClient) {
     return client.get<DriveFileList>(`${BASE_URL}/files?${params}`);
   }
 
+  async function recentlyModified(): Promise<DriveFileList> {
+    const params = new URLSearchParams({
+      orderBy: "modifiedTime desc",
+      pageSize: "15",
+      fields: `nextPageToken,files(${FILE_FIELDS})`,
+      q: "trashed = false and mimeType != 'application/vnd.google-apps.folder'",
+      supportsAllDrives: "true",
+      includeItemsFromAllDrives: "true",
+    });
+    return client.get<DriveFileList>(`${BASE_URL}/files?${params}`);
+  }
+
   async function getTrashedFiles(): Promise<DriveFileList> {
     const params = new URLSearchParams({
       q: "trashed = true",
@@ -100,6 +112,7 @@ export function createDriveApi(client: ApiClient) {
     searchFiles,
     getStarredFiles,
     getTrashedFiles,
+    recentlyModified,
     getFilePath,
     getDownloadUrl,
     listSharedDrives,

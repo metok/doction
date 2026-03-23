@@ -61,16 +61,17 @@ npm install
 
 ### Configuration
 
-Open `src-tauri/src/auth.rs` and replace the placeholder credentials:
+Create a `.env.local` file in the project root:
 
-```rust
-const CLIENT_ID: &str = "your-client-id.apps.googleusercontent.com";
-const CLIENT_SECRET: &str = "your-client-secret";
+```bash
+export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+export GOOGLE_CLIENT_SECRET="your-client-secret"
 ```
 
 ### Run
 
 ```bash
+source .env.local
 npm run tauri dev
 ```
 

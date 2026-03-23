@@ -10,9 +10,20 @@ use tauri_plugin_store::StoreExt;
 const GOOGLE_AUTH_URL: &str = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL: &str = "https://oauth2.googleapis.com/token";
 const STORE_PATH: &str = "auth.json";
-const CLIENT_ID: &str = "GOOGLE_CLIENT_ID_PLACEHOLDER";
-const CLIENT_SECRET: &str = "GOOGLE_CLIENT_SECRET_PLACEHOLDER";
 const SCOPES: &str = "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/documents.readonly https://www.googleapis.com/auth/spreadsheets.readonly";
+
+/// OAuth credentials injected at build time via environment variables.
+/// Set GOOGLE_client_id() and GOOGLE_client_secret() before building.
+/// For local development, create a `.env.local` file (gitignored) and source it.
+fn client_id() -> &'static str {
+    option_env!("GOOGLE_client_id()")
+        .expect("GOOGLE_client_id() must be set at build time. See README for setup instructions.")
+}
+
+fn client_secret() -> &'static str {
+    option_env!("GOOGLE_client_secret()")
+        .expect("GOOGLE_client_secret() must be set at build time. See README for setup instructions.")
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AuthTokens {
@@ -69,7 +80,7 @@ pub async fn start_auth(app: AppHandle) -> Result<(), String> {
     let auth_url = format!(
         "{}?client_id={}&redirect_uri={}&response_type=code&scope={}&code_challenge={}&code_challenge_method=S256&access_type=offline&prompt=consent",
         GOOGLE_AUTH_URL,
-        CLIENT_ID,
+        client_id(),
         urlencoding::encode(&redirect_uri),
         urlencoding::encode(SCOPES),
         challenge
@@ -237,8 +248,8 @@ async fn exchange_code_internal(app: &AppHandle, code: String) -> Result<AuthTok
         .post(GOOGLE_TOKEN_URL)
         .form(&[
             ("code", code.as_str()),
-            ("client_id", CLIENT_ID),
-            ("client_secret", CLIENT_SECRET),
+            ("client_id", client_id()),
+            ("client_secret", client_secret()),
             ("redirect_uri", redirect_uri.as_str()),
             ("grant_type", "authorization_code"),
             ("code_verifier", verifier.as_str()),
@@ -291,8 +302,8 @@ async fn refresh_access_token(app: AppHandle, refresh_token: String) -> Result<S
         .post(GOOGLE_TOKEN_URL)
         .form(&[
             ("refresh_token", refresh_token.as_str()),
-            ("client_id", CLIENT_ID),
-            ("client_secret", CLIENT_SECRET),
+            ("client_id", client_id()),
+            ("client_secret", client_secret()),
             ("grant_type", "refresh_token"),
         ])
         .send()

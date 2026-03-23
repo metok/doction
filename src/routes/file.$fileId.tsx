@@ -6,8 +6,8 @@ import { useFileMetadata, useFilePath } from "@/lib/hooks/use-drive-files";
 import { isImage, isPdf } from "@/lib/google/types";
 import { ImagePreview } from "@/components/content/ImagePreview";
 import { PdfPreview } from "@/components/content/PdfPreview";
+import { FileDownload } from "@/components/content/FileDownload";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
-import { ExternalLink } from "lucide-react";
 
 function FilePage() {
   const { fileId } = Route.useParams();
@@ -71,23 +71,7 @@ function FilePage() {
     return (
       <div className="flex flex-1 flex-col">
         <Breadcrumbs path={pathData} isLoading={pathLoading} file={meta} />
-        <div className="flex flex-1 flex-col items-center justify-center gap-4">
-          <p className="text-lg font-semibold text-text-primary">Preview not available</p>
-          <p className="text-sm text-text-muted">
-            This file type ({meta.mimeType}) cannot be previewed here.
-          </p>
-          {meta.webViewLink && (
-            <a
-              href={meta.webViewLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Open in Google Drive
-            </a>
-          )}
-        </div>
+        <FileDownload file={meta} downloadUrl={drive.getDownloadUrl(fileId)} />
       </div>
     );
   }

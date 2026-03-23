@@ -56,6 +56,7 @@ function DocPage() {
         title={doc?.title ?? meta?.name}
         lastModified={meta?.modifiedTime}
         blocks={blocks}
+        docId={docId}
       />
     </div>
   );

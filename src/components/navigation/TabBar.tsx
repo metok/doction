@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { useRouter } from "@tanstack/react-router";
+import { useRef, useCallback } from "react";
+import { useRouter, useRouterState } from "@tanstack/react-router";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,9 +11,12 @@ import {
   Image,
   File,
   Bell,
+  Crosshair,
 } from "lucide-react";
 import { useTabsStore } from "@/lib/stores/tabs";
 import type { Tab } from "@/lib/stores/tabs";
+import { useTreeStateStore } from "@/lib/stores/tree-state";
+import { useApi } from "@/lib/api-context";
 import {
   isFolder,
   isDocument,
@@ -77,6 +80,33 @@ export function TabBar() {
   function handleForward() {
     router.history.forward();
   }
+
+  const { drive } = useApi();
+  const { revealPath, setHighlight, expand } = useTreeStateStore();
+  const routerState = useRouterState();
+
+  const handleRevealInSidebar = useCallback(async () => {
+    const path = routerState.location.pathname;
+    // Extract file/folder ID from current route
+    const match = path.match(/\/(folder|doc|sheet|file)\/(.+)/);
+    if (!match) return;
+    const fileId = match[2];
+
+    try {
+      // Get the full path from Drive API
+      const filePath = await drive.getFilePath(fileId);
+      // Expand all parent folders
+      const parentIds = filePath.map((f) => f.id);
+      // Also expand My Drive and Shared Drives sections
+      expand("__my_drive__");
+      expand("__shared_drives__");
+      revealPath(parentIds);
+      // Highlight the target file
+      setHighlight(fileId);
+    } catch (e) {
+      console.error("Failed to reveal in sidebar:", e);
+    }
+  }, [routerState.location.pathname, drive, revealPath, setHighlight, expand]);
 
   return (
     <div className="flex h-9 shrink-0 items-stretch border-b border-border bg-bg-secondary" data-tauri-drag-region>
@@ -156,6 +186,18 @@ export function TabBar() {
           aria-label="Open new tab"
         >
           <Plus className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Reveal in sidebar */}
+      <div className="flex shrink-0 items-center px-0.5">
+        <button
+          onClick={handleRevealInSidebar}
+          title="Reveal in sidebar"
+          className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+          aria-label="Reveal current file in sidebar"
+        >
+          <Crosshair className="h-4 w-4" />
         </button>
       </div>
 

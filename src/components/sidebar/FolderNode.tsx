@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -73,8 +74,21 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   const showHidden = useHiddenItemsStore((s) => s.showHidden);
   const toggleHidden = useHiddenItemsStore((s) => s.toggle);
   const expanded = useTreeStateStore((s) => s.isExpanded(file.id));
+  const highlightId = useTreeStateStore((s) => s.highlightId);
+  const setHighlight = useTreeStateStore((s) => s.setHighlight);
   const toggle = useTreeStateStore((s) => s.toggle);
   const router = useRouter();
+  const rowRef = useRef<HTMLDivElement>(null);
+  const isHighlighted = highlightId === file.id;
+
+  // Scroll into view and flash when highlighted
+  useEffect(() => {
+    if (isHighlighted && rowRef.current) {
+      rowRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      const timer = setTimeout(() => setHighlight(null), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isHighlighted, setHighlight]);
   const isFolder = isFolderType(file.mimeType);
   const shouldFetch = isFolder && expanded && !(isHidden && !showHidden);
 
@@ -111,7 +125,8 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   return (
     <div>
       <div
-        className={`group flex cursor-pointer items-center gap-2 rounded-md py-[7px] pr-2 text-[13px] transition-colors hover:bg-bg-tertiary hover:text-text-primary ${isHidden ? "text-text-muted/50 italic" : "text-text-secondary"}`}
+        ref={rowRef}
+        className={`group flex cursor-pointer items-center gap-2 rounded-md py-[7px] pr-2 text-[13px] transition-all hover:bg-bg-tertiary hover:text-text-primary ${isHidden ? "text-text-muted/50 italic" : "text-text-secondary"} ${isHighlighted ? "bg-accent/15 text-text-primary ring-1 ring-accent/30" : ""}`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={handleNameClick}
       >

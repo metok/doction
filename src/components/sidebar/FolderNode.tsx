@@ -8,6 +8,7 @@ import {
   Image,
   File,
   Plus,
+  Star,
 } from "lucide-react";
 import { useDriveFiles } from "@/lib/hooks/use-drive-files";
 import {
@@ -19,6 +20,7 @@ import {
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
 import { useTreeStateStore } from "@/lib/stores/tree-state";
+import { useFavoritesStore } from "@/lib/stores/favorites";
 
 interface FolderNodeProps {
   file: DriveFile;
@@ -39,6 +41,28 @@ function FileIcon({ mimeType }: { mimeType: string }) {
     return <Image className="h-4 w-4 shrink-0 text-text-muted" />;
   }
   return <File className="h-4 w-4 shrink-0 text-text-muted" />;
+}
+
+function FavoriteButton({ file }: { file: DriveFile }) {
+  const isFav = useFavoritesStore((s) => s.isFavorite(file.id));
+  const toggle = useFavoritesStore((s) => s.toggle);
+
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        toggle(file);
+      }}
+      className={`cursor-pointer rounded p-0.5 transition-colors ${
+        isFav
+          ? "text-amber-400 hover:text-amber-300"
+          : "text-text-muted hover:bg-bg-tertiary hover:text-amber-400"
+      }`}
+      title={isFav ? "Remove from favorites" : "Add to favorites"}
+    >
+      <Star className={`h-3.5 w-3.5 ${isFav ? "fill-amber-400" : ""}`} />
+    </button>
+  );
 }
 
 export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
@@ -106,18 +130,22 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
           <span className="h-2 w-2 animate-pulse rounded-full bg-text-muted" />
         )}
 
-        {isFolder && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(`https://docs.google.com/document/create?folder=${file.id}`, "_blank");
-            }}
-            className="hidden shrink-0 cursor-pointer rounded p-0.5 text-text-muted opacity-0 transition-opacity group-hover:block group-hover:opacity-100 hover:bg-bg-tertiary hover:text-text-primary"
-            title="New doc in this folder"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </button>
-        )}
+        {/* Hover actions */}
+        <div className="hidden shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:flex group-hover:opacity-100">
+          <FavoriteButton file={file} />
+          {isFolder && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(`https://docs.google.com/document/create?folder=${file.id}`, "_blank");
+              }}
+              className="cursor-pointer rounded p-0.5 text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+              title="New doc in this folder"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       <AnimatePresence initial={false}>

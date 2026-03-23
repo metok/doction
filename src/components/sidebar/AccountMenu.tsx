@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { RefreshCw, LogOut } from "lucide-react";
+import { ChevronDown, RefreshCw, LogOut } from "lucide-react";
 import { useAuth, useUserInfo } from "@/lib/hooks/use-auth";
 
 export function AccountMenu() {
@@ -14,79 +14,64 @@ export function AccountMenu() {
         setOpen(false);
       }
     }
-    if (open) {
-      document.addEventListener("mousedown", handler);
-    }
+    if (open) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  const initials = userInfo?.email
-    ? userInfo.email[0].toUpperCase()
-    : userInfo?.name
-      ? userInfo.name[0].toUpperCase()
-      : "?";
+  const displayName = userInfo?.name ?? userInfo?.email?.split("@")[0] ?? "Workspace";
 
   return (
-    <div ref={ref} className="relative border-t border-border p-2">
+    <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-bg-tertiary"
+        className="flex items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-bg-tertiary"
         aria-haspopup="true"
         aria-expanded={open}
       >
-        {/* Avatar: photo if available, otherwise initials */}
         {userInfo?.picture ? (
           <img
             src={userInfo.picture}
-            alt={userInfo.name ?? userInfo.email}
-            className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-border"
+            alt={displayName}
+            className="h-5 w-5 shrink-0 rounded object-cover"
           />
         ) : (
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-tertiary text-xs font-medium text-text-secondary ring-1 ring-border">
-            {initials}
-          </span>
+          <div
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-bold text-white"
+            style={{ background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)" }}
+          >
+            {displayName[0]?.toUpperCase()}
+          </div>
         )}
-
-        {/* Email / name */}
-        {userInfo?.email ? (
-          <span className="min-w-0 flex-1 truncate text-left text-text-secondary">
-            {userInfo.email}
-          </span>
-        ) : (
-          <span className="text-text-secondary">Account</span>
-        )}
+        <span className="text-[13px] font-semibold text-text-primary">{displayName}</span>
+        <ChevronDown className="h-3 w-3 text-text-muted" />
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-2 right-2 z-50 mb-1 rounded-md border border-border bg-bg-secondary shadow-lg">
+        <div className="absolute left-0 top-full z-50 mt-1 w-56 rounded-lg border border-border bg-bg-secondary shadow-xl">
           {userInfo && (
-            <div className="border-b border-border px-3 py-2.5">
-              <p className="truncate text-xs font-medium text-text-primary">
+            <div className="border-b border-border/60 px-3 py-2.5">
+              <p className="truncate text-[13px] font-medium text-text-primary">
                 {userInfo.name}
               </p>
-              <p className="truncate text-xs text-text-muted">{userInfo.email}</p>
+              <p className="truncate text-[11px] text-text-muted">{userInfo.email}</p>
             </div>
           )}
-          <button
-            onClick={() => {
-              setOpen(false);
-              logout();
-            }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          >
-            <RefreshCw className="h-3.5 w-3.5 shrink-0" />
-            Switch account
-          </button>
-          <button
-            onClick={() => {
-              setOpen(false);
-              logout();
-            }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          >
-            <LogOut className="h-3.5 w-3.5 shrink-0" />
-            Sign out
-          </button>
+          <div className="py-1">
+            <button
+              onClick={() => { setOpen(false); logout(); }}
+              className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            >
+              <RefreshCw className="h-3.5 w-3.5 shrink-0" />
+              Switch account
+            </button>
+            <button
+              onClick={() => { setOpen(false); logout(); }}
+              className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            >
+              <LogOut className="h-3.5 w-3.5 shrink-0" />
+              Sign out
+            </button>
+          </div>
         </div>
       )}
     </div>

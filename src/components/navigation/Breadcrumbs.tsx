@@ -7,8 +7,6 @@ interface BreadcrumbsProps {
   path?: DriveFile[];
   isLoading?: boolean;
   file?: DriveFile;
-  rootLabel?: string;
-  rootTo?: string;
 }
 
 function formatFileSize(bytes: string | undefined): string {
@@ -32,7 +30,7 @@ function formatDate(iso: string | undefined): string {
   });
 }
 
-export function Breadcrumbs({ path, isLoading, file, rootLabel = "My Drive", rootTo = "/" }: BreadcrumbsProps) {
+export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
   const [starred, setStarred] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -96,23 +94,14 @@ export function Breadcrumbs({ path, isLoading, file, rootLabel = "My Drive", roo
   return (
     <div className="relative flex items-center justify-between border-b border-border px-6 py-2.5">
       <nav className="flex items-center gap-1 text-sm">
-        {/* Root breadcrumb — "My Drive" by default, or the shared drive name */}
-        {segments.length === 0 ? (
-          <span className="font-medium text-text-primary">{rootLabel}</span>
-        ) : (
-          <Link
-            to={rootTo}
-            className="text-text-secondary transition-colors hover:text-text-primary"
-          >
-            {rootLabel}
-          </Link>
-        )}
-
         {segments.map((segment, index) => {
+          const isFirst = index === 0;
           const isLast = index === segments.length - 1;
           return (
             <span key={segment.id} className="flex items-center gap-1">
-              <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+              {!isFirst && (
+                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+              )}
               {isLast ? (
                 <span className="font-medium text-text-primary">
                   {segment.name}
@@ -129,6 +118,9 @@ export function Breadcrumbs({ path, isLoading, file, rootLabel = "My Drive", roo
             </span>
           );
         })}
+        {segments.length === 0 && file && (
+          <span className="font-medium text-text-primary">{file.name}</span>
+        )}
       </nav>
 
       <div className="flex items-center gap-1">

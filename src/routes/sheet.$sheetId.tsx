@@ -1,14 +1,56 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSheetData } from "@/lib/hooks/use-sheet-data";
+import { useFilePath } from "@/lib/hooks/use-drive-files";
+import { SheetRenderer } from "@/components/content/SheetRenderer";
+import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 
 function SheetPage() {
   const { sheetId } = Route.useParams();
 
+  const { data: spreadsheet, isLoading, error } = useSheetData(sheetId);
+  const { data: pathData, isLoading: pathLoading } = useFilePath(sheetId);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 flex-col">
+        <Breadcrumbs isLoading={pathLoading} path={pathData} />
+        <div className="mx-auto w-full max-w-5xl px-8 py-10">
+          <div className="mb-6 h-8 w-2/3 animate-pulse rounded bg-bg-tertiary" />
+          <div className="mb-4 flex gap-1">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-8 w-20 animate-pulse rounded bg-bg-tertiary" />
+            ))}
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-9 animate-pulse rounded bg-bg-tertiary" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-1 flex-col">
+        <Breadcrumbs path={pathData} />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="text-center">
+            <p className="text-lg font-semibold text-text-primary">Failed to load spreadsheet</p>
+            <p className="mt-1 text-sm text-text-muted">{(error as Error).message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!spreadsheet) return null;
+
   return (
-    <div className="flex flex-1 flex-col p-8">
-      <h1 className="text-2xl font-semibold text-gray-100">Spreadsheet</h1>
-      <p className="mt-2 text-gray-400">
-        Sheet ID: <code className="text-indigo-400">{sheetId}</code>
-      </p>
+    <div className="flex flex-1 flex-col overflow-auto">
+      <Breadcrumbs path={pathData} isLoading={pathLoading} />
+      <SheetRenderer spreadsheet={spreadsheet} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { PanelLeftClose, PanelLeftOpen, FilePlus, Trash2 } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
@@ -41,7 +41,6 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
       <div className="flex h-12 items-center justify-between px-3">
         <AccountMenu />
         <div className="flex items-center gap-0.5">
-          <ThemeToggle />
           <button
             onClick={toggle}
             className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
@@ -78,34 +77,59 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         </div>
       </div>
 
-      {/* ── Always-visible bottom: Trash + New Page ── */}
-      <div className="flex flex-col border-t border-border/40">
+      {/* ── Quick action toolbar ── */}
+      <div className="flex items-center justify-center gap-1 border-t border-border/40 px-3 py-2.5">
         <Link
-          to="/trash"
-          className={`flex cursor-pointer items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${
-            pathname === "/trash"
+          to="/"
+          className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors ${
+            pathname === "/"
               ? "bg-bg-tertiary text-text-primary"
-              : "text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
           }`}
+          title="Home"
         >
-          <Trash2 className="h-4 w-4 shrink-0" />
-          <span>Trash</span>
+          <Home className="h-4 w-4" />
         </Link>
 
-        <div className="p-3 pt-1">
-          <button
-            onClick={() => {
-              const url = currentFolderId
-                ? `https://docs.google.com/document/create?folder=${currentFolderId}`
-                : "https://docs.google.com/document/create";
-              open(url);
-            }}
-            className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          >
-            <FilePlus className="h-4 w-4 shrink-0" />
-            <span>New Page</span>
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            const url = currentFolderId
+              ? `https://docs.google.com/document/create?folder=${currentFolderId}`
+              : "https://docs.google.com/document/create";
+            open(url);
+          }}
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-blue-400"
+          title="New Document"
+        >
+          <FileText className="h-4 w-4" />
+        </button>
+
+        <button
+          onClick={() => {
+            const url = currentFolderId
+              ? `https://docs.google.com/spreadsheets/create?folder=${currentFolderId}`
+              : "https://docs.google.com/spreadsheets/create";
+            open(url);
+          }}
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-emerald-400"
+          title="New Spreadsheet"
+        >
+          <Sheet className="h-4 w-4" />
+        </button>
+
+        <Link
+          to="/trash"
+          className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors ${
+            pathname === "/trash"
+              ? "bg-bg-tertiary text-text-primary"
+              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+          }`}
+          title="Trash"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Link>
+
+        <ThemeToggle />
       </div>
     </aside>
   );

@@ -4,7 +4,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
-import { FolderTree } from "./FolderTree";
+import { FolderTree, MyDriveTree } from "./FolderTree";
 import { FavoritesList } from "./FavoritesList";
 import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -77,6 +77,11 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
       {/* ── Bottom fixed section ── */}
       <div className="flex flex-col border-t border-border/40">
+        {/* My Drive — always visible, expandable */}
+        <div className="px-2">
+          <MyDriveTree />
+        </div>
+
         {/* Trash */}
         <Link
           to="/trash"

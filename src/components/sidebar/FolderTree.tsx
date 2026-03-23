@@ -126,46 +126,85 @@ function CollapsibleSection({
   );
 }
 
+/** Shared Drives only — My Drive is rendered separately in Sidebar */
 export function FolderTree() {
-  const { data: myDriveData, isLoading: myDriveLoading } = useDriveFiles("root");
   const { data: sharedDrivesData, isLoading: sharedDrivesLoading } = useSharedDrives();
-
-  const myDriveFiles = myDriveData?.files ?? [];
-  const folders = myDriveFiles.filter((f) => isFolder(f.mimeType));
-  const nonFolders = myDriveFiles.filter((f) => !isFolder(f.mimeType));
-  const sortedMyDrive = [...folders, ...nonFolders];
-
   const sharedDrives = sharedDrivesData?.drives ?? [];
 
-  return (
-    <div className="flex flex-col gap-1">
-      {/* Shared Drives */}
-      {!sharedDrivesLoading && sharedDrives.length > 0 && (
-        <CollapsibleSection id="__shared_drives__" icon={Users} label="Shared Drives">
-          {sharedDrives.map((drive) => (
-            <SharedDriveNode key={drive.id} drive={drive} />
-          ))}
-        </CollapsibleSection>
-      )}
+  if (sharedDrivesLoading) {
+    return (
+      <div className="space-y-1 px-2 py-2">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-5 animate-pulse rounded bg-bg-tertiary" style={{ width: `${50 + i * 12}%` }} />
+        ))}
+      </div>
+    );
+  }
 
-      {/* My Drive */}
-      <CollapsibleSection id="__my_drive__" icon={HardDrive} label="My Drive">
-        {myDriveLoading ? (
-          <div className="space-y-1 px-2 py-1">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-5 animate-pulse rounded bg-bg-tertiary"
-                style={{ width: `${50 + i * 12}%` }}
-              />
-            ))}
-          </div>
-        ) : (
-          sortedMyDrive.map((file) => (
-            <FolderNode key={file.id} file={file} depth={0} />
-          ))
+  if (sharedDrives.length === 0) return null;
+
+  return (
+    <CollapsibleSection id="__shared_drives__" icon={Users} label="Shared Drives">
+      {sharedDrives.map((drive) => (
+        <SharedDriveNode key={drive.id} drive={drive} />
+      ))}
+    </CollapsibleSection>
+  );
+}
+
+/** My Drive section — rendered in Sidebar fixed area */
+export function MyDriveTree() {
+  const { data, isLoading } = useDriveFiles("root");
+  const files = data?.files ?? [];
+  const folders = files.filter((f) => isFolder(f.mimeType));
+  const nonFolders = files.filter((f) => !isFolder(f.mimeType));
+  const sorted = [...folders, ...nonFolders];
+
+  const expanded = useTreeStateStore((s) => s.isExpanded("__my_drive__"));
+  const toggle = useTreeStateStore((s) => s.toggle);
+
+  return (
+    <div>
+      <button
+        className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+        onClick={() => toggle("__my_drive__")}
+      >
+        <HardDrive className="h-4 w-4 shrink-0" />
+        <span className="flex-1 text-left">My Drive</span>
+        <motion.span
+          animate={{ rotate: expanded ? 90 : 0 }}
+          transition={{ duration: 0.15 }}
+          className="flex text-text-muted"
+        >
+          <ChevronRight className="h-3.5 w-3.5" />
+        </motion.span>
+      </button>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-y-auto"
+            style={{ maxHeight: "40vh" }}
+          >
+            {isLoading ? (
+              <div className="space-y-1 px-4 py-1">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-5 animate-pulse rounded bg-bg-tertiary" style={{ width: `${50 + i * 12}%` }} />
+                ))}
+              </div>
+            ) : (
+              <div className="px-2">
+                {sorted.map((file) => (
+                  <FolderNode key={file.id} file={file} depth={0} />
+                ))}
+              </div>
+            )}
+          </motion.div>
         )}
-      </CollapsibleSection>
+      </AnimatePresence>
     </div>
   );
 }

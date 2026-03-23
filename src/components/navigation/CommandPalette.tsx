@@ -42,8 +42,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const router = useRouter();
   const { addFile } = useRecentStore();
   const recentFiles = useRecentStore((s) => s.files).slice(0, 5);
-  const { data: searchData } = useSearch(debouncedQuery);
+  const { data: searchData, isFetching: isSearching } = useSearch(debouncedQuery);
   const searchResults = searchData?.files ?? [];
+  const isTyping = query !== debouncedQuery;
 
   // Debounce search query by 300ms
   useEffect(() => {
@@ -105,7 +106,11 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             <Command shouldFilter={false} className="flex flex-col">
               {/* Search input */}
               <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-                <Search className="h-4 w-4 shrink-0 text-text-muted" />
+                {(isTyping || isSearching) && query.length > 0 ? (
+                  <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-border border-t-accent" />
+                ) : (
+                  <Search className="h-4 w-4 shrink-0 text-text-muted" />
+                )}
                 <Command.Input
                   autoFocus
                   value={query}
@@ -140,6 +145,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                       No recent files. Start typing to search.
                     </Command.Empty>
                   )
+                ) : (isTyping || isSearching) ? (
+                  <div className="flex flex-col items-center gap-3 px-4 py-8">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-accent" />
+                    <span className="text-sm text-text-muted">
+                      Searching for &ldquo;{query}&rdquo;&hellip;
+                    </span>
+                  </div>
                 ) : searchResults.length > 0 ? (
                   <Command.Group
                     heading="Results"

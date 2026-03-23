@@ -5,6 +5,7 @@ import {
   startLogin,
   logout as logoutFn,
 } from "../google/auth";
+import { useApi } from "../api-context";
 
 const STALE_TIME = 2 * 60 * 1000; // 2 minutes
 
@@ -33,4 +34,13 @@ export function useAuth() {
   }, [queryClient]);
 
   return { authenticated, isLoading, login, logout, refreshAuth };
+}
+
+export function useUserInfo() {
+  const { drive } = useApi();
+  return useQuery({
+    queryKey: ["user-info"],
+    queryFn: () => drive.getUserInfo(),
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
 }

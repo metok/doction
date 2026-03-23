@@ -86,6 +86,14 @@ export function createDriveApi(client: ApiClient) {
     return `${BASE_URL}/files/${fileId}?alt=media`;
   }
 
+  async function getUserInfo(): Promise<{
+    email: string;
+    name: string;
+    picture: string;
+  }> {
+    return client.get("https://www.googleapis.com/oauth2/v2/userinfo");
+  }
+
   return {
     listFiles,
     getFile,
@@ -95,5 +103,6 @@ export function createDriveApi(client: ApiClient) {
     getFilePath,
     getDownloadUrl,
     listSharedDrives,
+    getUserInfo,
   };
 }

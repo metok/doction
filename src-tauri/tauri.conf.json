@@ -46,7 +46,7 @@
       "endpoints": [
         "https://github.com/metok/doction/releases/latest/download/latest.json"
       ],
-      "pubkey": ""
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVBOEFCQTg2RjkzQTdCMUMKUldRY2V6cjVocnFLV281VWU2emx0SlkxS29rZHVLVVlEYXBhYVpSNTJVRG9MMU5XUExYWm83VzIK"
     }
   }
 }

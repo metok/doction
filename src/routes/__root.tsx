@@ -42,7 +42,7 @@ function RootLayout() {
 
   return (
     <div
-      className={`flex h-screen overflow-hidden ${
+      className={`flex h-screen overflow-hidden rounded-lg bg-bg-primary ${
         theme === "light" ? "light" :
         theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : ""
       }`}

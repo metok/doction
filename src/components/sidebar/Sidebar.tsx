@@ -63,7 +63,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
   if (collapsed) {
     return (
-      <aside className="flex h-full w-12 min-w-12 flex-col items-center border-r border-border bg-bg-secondary py-2">
+      <aside className="flex h-full w-12 min-w-12 flex-col items-center border-r border-border bg-bg-secondary pt-8 pb-2">
         {/* Expand */}
         <button
           onClick={toggle}
@@ -145,8 +145,8 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
   return (
     <aside className="flex h-full w-[260px] min-w-[260px] flex-col border-r border-border bg-bg-secondary">
-      {/* ── Top: Account header ── */}
-      <div className="flex h-12 items-center justify-between px-3">
+      {/* ── Top: Account header (with traffic light padding on macOS) ── */}
+      <div className="flex h-12 items-center justify-between px-3 pl-[76px]" data-tauri-drag-region>
         <AccountMenu />
         <div className="flex items-center gap-0.5">
           <button

@@ -2,6 +2,7 @@ import { ApiClient } from "./api-client";
 import { DriveFile, DriveFileList, SharedDriveList } from "./types";
 
 const BASE_URL = "https://www.googleapis.com/drive/v3";
+const DRIVE_API = BASE_URL;
 
 const FILE_FIELDS =
   "id,name,mimeType,parents,createdTime,modifiedTime,size,iconLink,thumbnailLink,webViewLink,starred,trashed";
@@ -61,10 +62,10 @@ export function createDriveApi(client: ApiClient) {
     return client.get<DriveFileList>(`${BASE_URL}/files?${params}`);
   }
 
-  async function recentlyModified(): Promise<DriveFileList> {
+  async function recentlyModified(pageSize: number = 15): Promise<DriveFileList> {
     const params = new URLSearchParams({
       orderBy: "modifiedTime desc",
-      pageSize: "15",
+      pageSize: String(pageSize),
       fields: `nextPageToken,files(${FILE_FIELDS})`,
       q: "trashed = false and mimeType != 'application/vnd.google-apps.folder'",
       supportsAllDrives: "true",
@@ -94,6 +95,40 @@ export function createDriveApi(client: ApiClient) {
     return [...parentPath, file];
   }
 
+  async function getStartPageToken(): Promise<string> {
+    const params = new URLSearchParams({
+      supportsAllDrives: "true",
+    });
+    const result = await client.get<{ startPageToken: string }>(
+      `${DRIVE_API}/changes/startPageToken?${params}`,
+    );
+    return result.startPageToken;
+  }
+
+  async function listChanges(pageToken: string): Promise<{
+    changes: Array<{
+      changeType: string;
+      time: string;
+      fileId?: string;
+      file?: DriveFile;
+      removed?: boolean;
+      driveId?: string;
+      drive?: { id: string; name: string };
+    }>;
+    newStartPageToken?: string;
+    nextPageToken?: string;
+  }> {
+    const params = new URLSearchParams({
+      pageToken,
+      pageSize: "50",
+      fields:
+        "changes(changeType,time,fileId,file(id,name,mimeType,modifiedTime,webViewLink,parents),removed,driveId,drive(id,name)),newStartPageToken,nextPageToken",
+      supportsAllDrives: "true",
+      includeItemsFromAllDrives: "true",
+    });
+    return client.get(`${DRIVE_API}/changes?${params}`);
+  }
+
   function getDownloadUrl(fileId: string): string {
     return `${BASE_URL}/files/${fileId}?alt=media`;
   }
@@ -117,5 +152,7 @@ export function createDriveApi(client: ApiClient) {
     getDownloadUrl,
     listSharedDrives,
     getUserInfo,
+    getStartPageToken,
+    listChanges,
   };
 }

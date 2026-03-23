@@ -5,6 +5,7 @@ import { ApiProvider } from "@/lib/api-context";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { CommandPalette } from "@/components/navigation/CommandPalette";
 import { TabBar } from "@/components/navigation/TabBar";
+import { ActivityPanel } from "@/components/panels/ActivityPanel";
 import { usePreferencesStore } from "@/lib/stores/preferences";
 import { useTabsStore } from "@/lib/stores/tabs";
 
@@ -56,6 +57,7 @@ function RootLayout() {
               <Outlet />
             </main>
           </div>
+          <ActivityPanel />
         </ApiProvider>
       </AuthGuard>
     </div>

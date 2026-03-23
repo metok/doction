@@ -10,6 +10,7 @@ import {
   Sheet,
   Image,
   File,
+  Bell,
 } from "lucide-react";
 import { useTabsStore } from "@/lib/stores/tabs";
 import type { Tab } from "@/lib/stores/tabs";
@@ -19,6 +20,7 @@ import {
   isSpreadsheet,
   isImage,
 } from "@/lib/google/types";
+import { usePanelsStore } from "@/lib/stores/panels";
 
 function TabIcon({ mimeType }: { mimeType?: string }) {
   if (!mimeType) return <File className="h-3.5 w-3.5 shrink-0 text-text-muted" />;
@@ -32,6 +34,7 @@ function TabIcon({ mimeType }: { mimeType?: string }) {
 export function TabBar() {
   const router = useRouter();
   const { tabs, activeTabId, closeTab, setActive, addTab } = useTabsStore();
+  const { activityOpen, toggleActivity } = usePanelsStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function handleTabClick(tab: Tab) {
@@ -153,6 +156,23 @@ export function TabBar() {
           aria-label="Open new tab"
         >
           <Plus className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Activity button */}
+      <div className="flex shrink-0 items-center border-l border-border px-1.5">
+        <button
+          onClick={toggleActivity}
+          title="Activity"
+          aria-label="Toggle activity panel"
+          className={[
+            "rounded p-1 transition-colors",
+            activityOpen
+              ? "bg-bg-tertiary text-text-primary"
+              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
+          ].join(" ")}
+        >
+          <Bell className="h-4 w-4" />
         </button>
       </div>
     </div>

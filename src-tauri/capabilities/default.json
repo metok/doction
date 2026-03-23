@@ -8,6 +8,7 @@
     "shell:allow-open",
     "store:default",
     "deep-link:default",
-    "os:default"
+    "os:default",
+    "updater:default"
   ]
 }

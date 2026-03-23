@@ -28,6 +28,7 @@ tauri-plugin-shell = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-os = "2"
 tauri-plugin-store = "2"
+tauri-plugin-updater = "2"
 urlencoding = "2"
 
 [profile.release]

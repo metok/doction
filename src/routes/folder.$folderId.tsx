@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useDriveFiles, useFileMetadata, useFilePath } from "@/lib/hooks/use-drive-files";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { FolderView } from "@/components/content/FolderView";
 import { isFolder } from "@/lib/google/types";
+import { useTabsStore } from "@/lib/stores/tabs";
 
 function FolderPage() {
   const { folderId } = Route.useParams();
@@ -12,6 +14,15 @@ function FolderPage() {
     useDriveFiles(folderId);
   const { data: pathData, isLoading: pathLoading } = useFilePath(folderId);
   const { data: folderMeta } = useFileMetadata(folderId);
+  const { updateTab, tabs } = useTabsStore();
+
+  useEffect(() => {
+    if (folderMeta?.name) {
+      const tab = tabs.find((t) => t.path === `/folder/${folderId}`);
+      if (tab) updateTab(tab.id, { title: folderMeta.name, mimeType: folderMeta.mimeType });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folderMeta?.name]);
 
   const files = filesData?.files ?? [];
   const folders = files.filter((f) => isFolder(f.mimeType));

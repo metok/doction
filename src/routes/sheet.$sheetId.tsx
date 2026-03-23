@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSheetData } from "@/lib/hooks/use-sheet-data";
 import { useFileMetadata, useFilePath } from "@/lib/hooks/use-drive-files";
 import { SheetRenderer } from "@/components/content/SheetRenderer";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
+import { useTabsStore } from "@/lib/stores/tabs";
 
 export const Route = createFileRoute("/sheet/$sheetId")({
   component: SheetPage,
@@ -13,6 +15,15 @@ function SheetPage() {
   const { data, isLoading, error } = useSheetData(sheetId);
   const { data: meta } = useFileMetadata(sheetId);
   const { data: path = [], isLoading: pathLoading } = useFilePath(sheetId);
+  const { updateTab, tabs } = useTabsStore();
+
+  useEffect(() => {
+    if (meta?.name) {
+      const tab = tabs.find((t) => t.path === `/sheet/${sheetId}`);
+      if (tab) updateTab(tab.id, { title: meta.name, mimeType: meta.mimeType });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meta?.name]);
 
   if (isLoading) {
     return (

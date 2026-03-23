@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTabsStore } from "@/lib/stores/tabs";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "@/lib/api-context";
@@ -15,8 +16,17 @@ function FilePage() {
 
   const { data: meta, isLoading: metaLoading } = useFileMetadata(fileId);
   const { data: pathData, isLoading: pathLoading } = useFilePath(fileId);
+  const { updateTab, tabs } = useTabsStore();
 
   const prevUrlRef = useRef<string>();
+
+  useEffect(() => {
+    if (meta?.name) {
+      const tab = tabs.find((t) => t.path === `/file/${fileId}`);
+      if (tab) updateTab(tab.id, { title: meta.name, mimeType: meta.mimeType });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meta?.name]);
 
   const { data: objectUrl, isLoading: blobLoading } = useQuery({
     queryKey: ["drive", "blob", fileId],

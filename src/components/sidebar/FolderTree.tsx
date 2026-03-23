@@ -66,7 +66,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
 }
 
 export function FolderTree() {
-  const [myDriveExpanded, setMyDriveExpanded] = useState(true);
+  const [myDriveExpanded, setMyDriveExpanded] = useState(false);
   const { data: myDriveData, isLoading: myDriveLoading, isError: myDriveError } = useDriveFiles("root");
   const { data: sharedDrivesData, isLoading: sharedDrivesLoading } = useSharedDrives();
 

@@ -36,12 +36,6 @@
   --color-text-muted: #999999;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 ::-webkit-scrollbar {
   width: 6px;
 }

@@ -76,15 +76,15 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   const toggle = useTreeStateStore((s) => s.toggle);
   const router = useRouter();
   const isFolder = isFolderType(file.mimeType);
-  const shouldFetch = isFolder && expanded;
-
-  // Don't render if hidden (unless showHidden is on)
-  if (isHidden && !showHidden) return null;
+  const shouldFetch = isFolder && expanded && !(isHidden && !showHidden);
 
   const { data, isLoading } = useDriveFiles(
     shouldFetch ? file.id : "",
     shouldFetch,
   );
+
+  // Don't render if hidden (unless showHidden is on) — AFTER all hooks
+  if (isHidden && !showHidden) return null;
 
   const children = data?.files ?? [];
   const folders = children.filter((f) => isFolderType(f.mimeType));

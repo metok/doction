@@ -5,7 +5,7 @@
 <h1 align="center">Doction</h1>
 
 <p align="center">
-  <strong>Google Drive has the data. Notion has the feel. Doction has both.</strong>
+  <strong>The Notion feeling for your Google Drive.</strong>
 </p>
 
 <p align="center">

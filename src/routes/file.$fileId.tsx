@@ -18,7 +18,7 @@ function FilePage() {
   const { data: pathData, isLoading: pathLoading } = useFilePath(fileId);
   const { updateTab, tabs } = useTabsStore();
 
-  const prevUrlRef = useRef<string>();
+  const prevUrlRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (meta?.name) {
@@ -43,7 +43,7 @@ function FilePage() {
     if (prevUrlRef.current && prevUrlRef.current !== objectUrl) {
       URL.revokeObjectURL(prevUrlRef.current);
     }
-    prevUrlRef.current = objectUrl;
+    prevUrlRef.current = objectUrl ?? undefined;
     return () => {
       if (prevUrlRef.current) {
         URL.revokeObjectURL(prevUrlRef.current);

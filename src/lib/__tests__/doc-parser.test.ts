@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { parseDocContent } from "../doc-parser";
 import type { GoogleDoc } from "../google/types";
 
-function makeDoc(content: GoogleDoc["body"]["content"]): GoogleDoc {
+function makeDoc(content: NonNullable<GoogleDoc["body"]>["content"]): GoogleDoc {
   return { body: { content } };
 }
 

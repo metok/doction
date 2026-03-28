@@ -13,6 +13,8 @@ import {
   Crosshair,
   Home,
   Clock,
+  Columns2,
+  Rows2,
 } from "lucide-react";
 import { useTabsStore } from "@/lib/stores/tabs";
 import type { Tab } from "@/lib/stores/tabs";
@@ -54,6 +56,7 @@ export function TabBar() {
   const setPaneContent = usePanesStore((s) => s.setPaneContent);
   const activePaneId = usePanesStore((s) => s.activePaneId);
   const activeLeaf = usePanesStore((s) => s.getActiveLeaf());
+  const splitPane = usePanesStore((s) => s.splitPane);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function handleTabClick(tab: Tab) {
@@ -255,6 +258,28 @@ export function TabBar() {
             aria-label="Recent"
           >
             <Clock className="h-4 w-4" />
+          </button>
+        </Tooltip>
+      </div>
+
+      {/* Split buttons */}
+      <div className="flex shrink-0 items-center gap-0 border-l border-border px-1">
+        <Tooltip label="Split Right" shortcut="⌘\">
+          <button
+            onClick={() => splitPane(activePaneId, "horizontal")}
+            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            aria-label="Split right"
+          >
+            <Columns2 className="h-4 w-4" />
+          </button>
+        </Tooltip>
+        <Tooltip label="Split Down" shortcut="⌘⇧\">
+          <button
+            onClick={() => splitPane(activePaneId, "vertical")}
+            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            aria-label="Split down"
+          >
+            <Rows2 className="h-4 w-4" />
           </button>
         </Tooltip>
       </div>

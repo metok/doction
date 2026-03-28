@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { usePanesStore, type PaneLeaf } from "@/lib/stores/panes";
 import { DocPageContent } from "@/components/content/DocPageContent";
 import { SheetPageContent } from "@/components/content/SheetPageContent";
@@ -34,17 +35,30 @@ function PaneContent({ pane }: { pane: PaneLeaf }) {
 export function PaneLeafView({ pane }: { pane: PaneLeaf }) {
   const activePaneId = usePanesStore((s) => s.activePaneId);
   const setActive = usePanesStore((s) => s.setActivePaneId);
+  const closePane = usePanesStore((s) => s.closePane);
   const paneCount = usePanesStore((s) => s.getPaneCount());
   const isActive = activePaneId === pane.id;
+  const showClose = paneCount > 1;
 
   return (
     <div
       className={[
-        "flex flex-1 flex-col overflow-hidden",
+        "group/pane relative flex flex-1 flex-col overflow-hidden",
         paneCount > 1 && isActive ? "ring-1 ring-inset ring-accent/40" : "",
       ].join(" ")}
       onMouseDown={() => { if (!isActive) setActive(pane.id); }}
     >
+      {/* Close pane button — top-right corner, visible on hover when split */}
+      {showClose && (
+        <button
+          onClick={(e) => { e.stopPropagation(); closePane(pane.id); }}
+          className="absolute right-2 top-2 z-10 rounded-md bg-bg-secondary/80 p-1 text-text-muted opacity-0 shadow-sm backdrop-blur-sm transition-opacity hover:bg-bg-tertiary hover:text-text-primary group-hover/pane:opacity-100"
+          aria-label="Close pane"
+          title="Close pane"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
       <PaneContent pane={pane} />
     </div>
   );

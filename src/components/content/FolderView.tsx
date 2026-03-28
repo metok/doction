@@ -1,7 +1,5 @@
-import { useRouter } from "@tanstack/react-router";
 import { LayoutGrid, List, Folder, FileText, Sheet, Image, File, FileArchive, Presentation } from "lucide-react";
 import { usePreferencesStore } from "@/lib/stores/preferences";
-import { useRecentStore } from "@/lib/stores/recent";
 import { useDriveFiles } from "@/lib/hooks/use-drive-files";
 import {
   isFolder,
@@ -12,6 +10,7 @@ import {
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
 import { SortableFileList } from "@/components/dnd/SortableFileList";
+import { useFileNavigation } from "@/lib/hooks/use-file-navigation";
 
 interface FolderViewProps {
   files: DriveFile[];
@@ -158,21 +157,7 @@ function FolderPreview({ folderId }: { folderId: string }) {
 
 export function FolderView({ files, folderId = "root" }: FolderViewProps) {
   const { viewMode, setViewMode } = usePreferencesStore();
-  const { addFile } = useRecentStore();
-  const router = useRouter();
-
-  function navigateTo(file: DriveFile) {
-    addFile(file);
-    if (isFolder(file.mimeType)) {
-      router.navigate({ to: "/folder/$folderId", params: { folderId: file.id } });
-    } else if (isDocument(file.mimeType)) {
-      router.navigate({ to: "/doc/$docId", params: { docId: file.id } });
-    } else if (isSpreadsheet(file.mimeType)) {
-      router.navigate({ to: "/sheet/$sheetId", params: { sheetId: file.id } });
-    } else if (isImage(file.mimeType) || isPdf(file.mimeType)) {
-      router.navigate({ to: "/file/$fileId", params: { fileId: file.id } });
-    }
-  }
+  const navigateTo = useFileNavigation();
 
   return (
     <div className="flex flex-col gap-6 px-8 pb-10">
@@ -220,7 +205,7 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                   style={style}
                   {...attributes}
                   {...listeners}
-                  onClick={() => navigateTo(file)}
+                  onClick={(e) => navigateTo(file, e)}
                   className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5"
                 >
                   {/* Preview area */}
@@ -290,7 +275,7 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                 style={style}
                 {...attributes}
                 {...listeners}
-                onClick={() => navigateTo(file)}
+                onClick={(e) => navigateTo(file, e)}
                 className="flex w-full cursor-pointer items-center gap-3 border-b border-border/30 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-bg-tertiary/40"
               >
                 <SmallFileIcon mimeType={file.mimeType} />

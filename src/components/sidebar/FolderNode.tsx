@@ -1,5 +1,4 @@
 import { useRef, useEffect } from "react";
-import { useRouter } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronRight,
@@ -18,12 +17,12 @@ import {
   isDocument,
   isSpreadsheet,
   isImage,
-  isPdf,
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
 import { useTreeStateStore } from "@/lib/stores/tree-state";
 import { useFavoritesStore } from "@/lib/stores/favorites";
 import { useHiddenItemsStore } from "@/lib/stores/hidden-items";
+import { useFileNavigation } from "@/lib/hooks/use-file-navigation";
 
 interface FolderNodeProps {
   file: DriveFile;
@@ -77,7 +76,7 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   const highlightId = useTreeStateStore((s) => s.highlightId);
   const setHighlight = useTreeStateStore((s) => s.setHighlight);
   const toggle = useTreeStateStore((s) => s.toggle);
-  const router = useRouter();
+  const navigateTo = useFileNavigation();
   const rowRef = useRef<HTMLDivElement>(null);
   const isHighlighted = highlightId === file.id;
 
@@ -110,16 +109,8 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
     toggle(file.id);
   }
 
-  function handleNameClick() {
-    if (isFolder) {
-      router.navigate({ to: "/folder/$folderId", params: { folderId: file.id } });
-    } else if (isDocument(file.mimeType)) {
-      router.navigate({ to: "/doc/$docId", params: { docId: file.id } });
-    } else if (isSpreadsheet(file.mimeType)) {
-      router.navigate({ to: "/sheet/$sheetId", params: { sheetId: file.id } });
-    } else if (isImage(file.mimeType) || isPdf(file.mimeType)) {
-      router.navigate({ to: "/file/$fileId", params: { fileId: file.id } });
-    }
+  function handleNameClick(e: React.MouseEvent) {
+    navigateTo(file, e);
   }
 
   return (

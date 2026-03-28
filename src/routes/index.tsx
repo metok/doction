@@ -29,6 +29,7 @@ import {
   isPdf,
 } from "@/lib/google/types";
 import type { DriveFile, SharedDrive } from "@/lib/google/types";
+import { useFileNavigation } from "@/lib/hooks/use-file-navigation";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -125,25 +126,7 @@ function getFileTypeConfig(mimeType: string): {
   };
 }
 
-// ── Navigation helper ──────────────────────────────────────────────────────
-
-function useNavigateToFile() {
-  const router = useRouter();
-  const { addFile } = useRecentStore();
-
-  return (file: DriveFile) => {
-    addFile(file);
-    if (isFolder(file.mimeType)) {
-      router.navigate({ to: "/folder/$folderId", params: { folderId: file.id } });
-    } else if (isDocument(file.mimeType)) {
-      router.navigate({ to: "/doc/$docId", params: { docId: file.id } });
-    } else if (isSpreadsheet(file.mimeType)) {
-      router.navigate({ to: "/sheet/$sheetId", params: { sheetId: file.id } });
-    } else if (isImage(file.mimeType) || isPdf(file.mimeType)) {
-      router.navigate({ to: "/file/$fileId", params: { fileId: file.id } });
-    }
-  };
-}
+// useNavigateToFile is now useFileNavigation from the shared hook
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 
@@ -174,7 +157,7 @@ function FileCard({
   onClick,
 }: {
   file: DriveFile;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 }) {
   const config = getFileTypeConfig(file.mimeType);
   return (
@@ -201,13 +184,13 @@ function HorizontalCardRow({
   onFileClick,
 }: {
   files: DriveFile[];
-  onFileClick: (file: DriveFile) => void;
+  onFileClick: (file: DriveFile, e: React.MouseEvent) => void;
 }) {
   return (
     <div className="overflow-x-auto pb-2">
       <div className="flex gap-3" style={{ minWidth: "max-content" }}>
         {files.map((file) => (
-          <FileCard key={file.id} file={file} onClick={() => onFileClick(file)} />
+          <FileCard key={file.id} file={file} onClick={(e) => onFileClick(file, e)} />
         ))}
       </div>
     </div>
@@ -220,7 +203,7 @@ function RecentlyModifiedRow({
   onClick,
 }: {
   file: DriveFile;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 }) {
   const config = getFileTypeConfig(file.mimeType);
   return (
@@ -267,7 +250,7 @@ function SharedDriveCard({
 
 function HomePage() {
   const { data: userInfo } = useUserInfo();
-  const navigateTo = useNavigateToFile();
+  const navigateTo = useFileNavigation();
   const router = useRouter();
 
   const recentFiles = useRecentStore((s) => s.files).slice(0, 8);
@@ -343,7 +326,7 @@ function HomePage() {
                 >
                   <RecentlyModifiedRow
                     file={file}
-                    onClick={() => navigateTo(file)}
+                    onClick={(e) => navigateTo(file, e)}
                   />
                 </div>
               ))}

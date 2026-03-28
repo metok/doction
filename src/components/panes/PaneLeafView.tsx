@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { usePanesStore, type PaneLeaf } from "@/lib/stores/panes";
+import { Tooltip } from "@/components/Tooltip";
 import { DocPageContent } from "@/components/content/DocPageContent";
 import { SheetPageContent } from "@/components/content/SheetPageContent";
 import { FilePageContent } from "@/components/content/FilePageContent";
@@ -50,14 +51,17 @@ export function PaneLeafView({ pane }: { pane: PaneLeaf }) {
     >
       {/* Close pane button — top-right corner, visible on hover when split */}
       {showClose && (
-        <button
-          onClick={(e) => { e.stopPropagation(); closePane(pane.id); }}
-          className="absolute right-2 top-2 z-10 rounded-md bg-bg-secondary/80 p-1 text-text-muted opacity-0 shadow-sm backdrop-blur-sm transition-opacity hover:bg-bg-tertiary hover:text-text-primary group-hover/pane:opacity-100"
-          aria-label="Close pane"
-          title="Close pane"
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
+        <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover/pane:opacity-100">
+          <Tooltip label="Close Pane" shortcut="⌘⇧W">
+            <button
+              onClick={(e) => { e.stopPropagation(); closePane(pane.id); }}
+              className="rounded-md bg-bg-secondary/80 p-1 text-text-muted shadow-sm backdrop-blur-sm hover:bg-bg-tertiary hover:text-text-primary"
+              aria-label="Close pane"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </Tooltip>
+        </div>
       )}
       <PaneContent pane={pane} />
     </div>

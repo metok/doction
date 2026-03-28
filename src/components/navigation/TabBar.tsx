@@ -109,7 +109,7 @@ export function TabBar() {
   }, [routerState.location.pathname, drive, revealPath, setHighlight, expand]);
 
   return (
-    <div className="flex h-9 shrink-0 items-stretch border-b border-border bg-bg-secondary">
+    <div className="flex h-9 shrink-0 items-stretch border-b border-border bg-bg-secondary" data-tauri-drag-region>
       {/* Back / Forward */}
       <div className="flex shrink-0 items-center gap-0.5 border-r border-border px-1.5">
         <button
@@ -130,9 +130,10 @@ export function TabBar() {
         </button>
       </div>
 
-      {/* Tab list */}
+      {/* Tab list — drag-region so empty space between tabs is draggable */}
       <div
         ref={scrollRef}
+        data-tauri-drag-region
         className="flex min-w-0 flex-1 items-stretch overflow-x-auto scrollbar-none"
         style={{ scrollbarWidth: "none" }}
       >

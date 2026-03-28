@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Star, Eye, EyeOff } from "lucide-react";
 import { useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
-import { useSidebarStore } from "@/lib/stores/sidebar";
+import { useSidebarStore, MIN_WIDTH } from "@/lib/stores/sidebar";
 import { usePanesStore, type PaneContentType } from "@/lib/stores/panes";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
@@ -12,6 +12,53 @@ import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { FolderPicker } from "@/components/dialogs/FolderPicker";
 import { useHiddenItemsStore } from "@/lib/stores/hidden-items";
+
+function ResizeHandle() {
+  const { setSidebarWidth, setCollapsed } = useSidebarStore();
+  const dragging = useRef(false);
+
+  const onMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      dragging.current = true;
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+
+      const onMouseMove = (e: MouseEvent) => {
+        if (!dragging.current) return;
+        if (e.clientX < MIN_WIDTH) {
+          setCollapsed(true);
+          dragging.current = false;
+          document.body.style.cursor = "";
+          document.body.style.userSelect = "";
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("mouseup", onMouseUp);
+          return;
+        }
+        setSidebarWidth(e.clientX);
+      };
+
+      const onMouseUp = () => {
+        dragging.current = false;
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      };
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    },
+    [setSidebarWidth, setCollapsed],
+  );
+
+  return (
+    <div
+      onMouseDown={onMouseDown}
+      className="absolute top-0 right-0 z-10 h-full w-1 translate-x-1/2 cursor-col-resize hover:bg-accent/50 active:bg-accent/50"
+    />
+  );
+}
 
 function HiddenToggle() {
   const showHidden = useHiddenItemsStore((s) => s.showHidden);
@@ -58,7 +105,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
-  const { collapsed, toggle } = useSidebarStore();
+  const { collapsed, toggle, sidebarWidth } = useSidebarStore();
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
   const currentFolderId = pathname.startsWith("/folder/")
@@ -136,7 +183,10 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
   }
 
   return (
-    <aside className="flex h-full w-[260px] min-w-[260px] flex-col border-r border-border bg-bg-secondary">
+    <aside
+      className="relative flex h-full flex-col border-r border-border bg-bg-secondary"
+      style={{ width: sidebarWidth, minWidth: sidebarWidth }}
+    >
       {/* ── Top: Account header (with traffic light padding on macOS) ── */}
       <div className="flex h-12 items-center justify-between px-3 pl-[76px]" data-tauri-drag-region>
         <AccountMenu />
@@ -212,6 +262,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         title={pickerType === "doc" ? "Create Document in..." : "Create Spreadsheet in..."}
         currentFolderId={currentFolderId}
       />
+      <ResizeHandle />
     </aside>
   );
 }

@@ -109,7 +109,7 @@ export function TabBar() {
   }, [routerState.location.pathname, drive, revealPath, setHighlight, expand]);
 
   return (
-    <div className="flex h-9 shrink-0 items-stretch border-b border-border bg-bg-secondary">
+    <div className="flex h-9 shrink-0 items-stretch border-b border-border bg-bg-secondary" data-tauri-drag-region>
       {/* Back / Forward */}
       <div className="flex shrink-0 items-center gap-0.5 border-r border-border px-1.5">
         <button

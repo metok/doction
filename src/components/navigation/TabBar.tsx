@@ -1,5 +1,5 @@
 import { useRef, useCallback } from "react";
-import { useRouter, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import {
   ChevronLeft,
   ChevronRight,
@@ -49,7 +49,6 @@ function pathToPane(path: string): { contentType: "home" | "recent" | "favorites
 }
 
 export function TabBar() {
-  const router = useRouter();
   const { tabs, activeTabId, closeTab, setActive } = useTabsStore();
   const { activityOpen, toggleActivity } = usePanelsStore();
   const setPaneContent = usePanesStore((s) => s.setPaneContent);
@@ -86,13 +85,10 @@ export function TabBar() {
     }
   }
 
-  function handleBack() {
-    router.history.back();
-  }
-
-  function handleForward() {
-    router.history.forward();
-  }
+  const goBack = usePanesStore((s) => s.goBack);
+  const goForward = usePanesStore((s) => s.goForward);
+  const canGoBack = usePanesStore((s) => s.canGoBack());
+  const canGoForward = usePanesStore((s) => s.canGoForward());
 
   const { drive } = useApi();
   const { revealPath, setHighlight, expand } = useTreeStateStore();
@@ -130,8 +126,14 @@ export function TabBar() {
       <div className="flex shrink-0 items-center gap-0.5 border-r border-border px-1.5">
         <Tooltip label="Back">
           <button
-            onClick={handleBack}
-            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            onClick={goBack}
+            disabled={!canGoBack}
+            className={[
+              "rounded p-1 transition-colors",
+              canGoBack
+                ? "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+                : "cursor-default text-text-muted/30",
+            ].join(" ")}
             aria-label="Go back"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -139,8 +141,14 @@ export function TabBar() {
         </Tooltip>
         <Tooltip label="Forward">
           <button
-            onClick={handleForward}
-            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            onClick={goForward}
+            disabled={!canGoForward}
+            className={[
+              "rounded p-1 transition-colors",
+              canGoForward
+                ? "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+                : "cursor-default text-text-muted/30",
+            ].join(" ")}
             aria-label="Go forward"
           >
             <ChevronRight className="h-4 w-4" />

@@ -15,11 +15,18 @@ export type PaneContentType =
   | "favorites"
   | "trash";
 
+export interface PaneEntry {
+  contentType: PaneContentType;
+  contentId?: string;
+}
+
 export interface PaneLeaf {
   kind: "leaf";
   id: string;
   contentType: PaneContentType;
   contentId?: string; // docId, folderId, etc.
+  history: PaneEntry[];   // past entries (back stack)
+  forward: PaneEntry[];   // forward stack
 }
 
 export interface PaneSplit {
@@ -36,6 +43,10 @@ export type PaneNode = PaneLeaf | PaneSplit;
 
 function newId(): string {
   return crypto.randomUUID();
+}
+
+function makeLeaf(contentType: PaneContentType, contentId?: string): PaneLeaf {
+  return { kind: "leaf", id: newId(), contentType, contentId, history: [], forward: [] };
 }
 
 function findNode(root: PaneNode, id: string): PaneNode | null {
@@ -81,32 +92,30 @@ function countLeaves(node: PaneNode): number {
   return countLeaves(node.children[0]) + countLeaves(node.children[1]);
 }
 
+const MAX_HISTORY = 50;
+
 // ── Store ─────────────────────────────────────────────────────────────────
 
 interface PanesState {
   root: PaneNode;
   activePaneId: string;
 
-  /** Split the given pane into two. The original content goes into the first child. */
   splitPane: (paneId: string, direction: PaneDirection) => void;
-
-  /** Close a pane. If it's the last one, resets to home. */
   closePane: (paneId: string) => void;
-
-  /** Focus a pane. */
   setActivePaneId: (id: string) => void;
-
-  /** Update the content shown in a pane. */
   setPaneContent: (paneId: string, contentType: PaneContentType, contentId?: string) => void;
-
-  /** Update split ratio. */
   setSplitRatio: (splitId: string, ratio: number) => void;
-
-  /** Get the active leaf. */
   getActiveLeaf: () => PaneLeaf | null;
-
-  /** Get total number of panes. */
   getPaneCount: () => number;
+
+  /** Navigate back in the active pane's history. */
+  goBack: () => void;
+  /** Navigate forward in the active pane's history. */
+  goForward: () => void;
+  /** Whether the active pane can go back. */
+  canGoBack: () => boolean;
+  /** Whether the active pane can go forward. */
+  canGoForward: () => boolean;
 }
 
 const DEFAULT_PANE_ID = "pane-default";
@@ -115,6 +124,8 @@ const defaultRoot: PaneLeaf = {
   kind: "leaf",
   id: DEFAULT_PANE_ID,
   contentType: "home",
+  history: [],
+  forward: [],
 };
 
 export const usePanesStore = create<PanesState>()(
@@ -129,7 +140,7 @@ export const usePanesStore = create<PanesState>()(
           if (!node || node.kind !== "leaf") return s;
 
           const firstChild: PaneLeaf = { ...node, id: newId() };
-          const secondChild: PaneLeaf = { ...node, id: newId() };
+          const secondChild: PaneLeaf = { ...node, id: newId(), history: [], forward: [] };
 
           const split: PaneSplit = {
             kind: "split",
@@ -148,23 +159,20 @@ export const usePanesStore = create<PanesState>()(
 
       closePane: (paneId) => {
         set((s) => {
-          // If only one pane, reset to home
           if (countLeaves(s.root) <= 1) {
-            const home: PaneLeaf = { kind: "leaf", id: newId(), contentType: "home" };
+            const home = makeLeaf("home");
             return { root: home, activePaneId: home.id };
           }
 
           const parent = findParent(s.root, paneId);
           if (!parent) return s;
 
-          // The surviving sibling replaces the parent split
           const sibling = parent.children[0].id === paneId
             ? parent.children[1]
             : parent.children[0];
 
           const newRoot = replaceNode(s.root, parent.id, sibling);
 
-          // If the closed pane was active, activate the first leaf of the sibling
           let newActiveId = s.activePaneId;
           if (s.activePaneId === paneId) {
             const leaves = collectLeafIds(sibling);
@@ -184,7 +192,14 @@ export const usePanesStore = create<PanesState>()(
           const node = findNode(s.root, paneId);
           if (!node || node.kind !== "leaf") return s;
 
-          const updated: PaneLeaf = { ...node, contentType, contentId };
+          // Don't push to history if content is identical
+          if (node.contentType === contentType && node.contentId === contentId) return s;
+
+          // Push current state onto history, clear forward stack
+          const entry: PaneEntry = { contentType: node.contentType, contentId: node.contentId };
+          const history = [...node.history, entry].slice(-MAX_HISTORY);
+
+          const updated: PaneLeaf = { ...node, contentType, contentId, history, forward: [] };
           return { root: replaceNode(s.root, paneId, updated) };
         });
       },
@@ -209,6 +224,58 @@ export const usePanesStore = create<PanesState>()(
 
       getPaneCount: () => {
         return countLeaves(get().root);
+      },
+
+      goBack: () => {
+        set((s) => {
+          const node = findNode(s.root, s.activePaneId);
+          if (!node || node.kind !== "leaf" || node.history.length === 0) return s;
+
+          const history = [...node.history];
+          const prev = history.pop()!;
+          const forwardEntry: PaneEntry = { contentType: node.contentType, contentId: node.contentId };
+
+          const updated: PaneLeaf = {
+            ...node,
+            contentType: prev.contentType,
+            contentId: prev.contentId,
+            history,
+            forward: [...node.forward, forwardEntry],
+          };
+          return { root: replaceNode(s.root, s.activePaneId, updated) };
+        });
+      },
+
+      goForward: () => {
+        set((s) => {
+          const node = findNode(s.root, s.activePaneId);
+          if (!node || node.kind !== "leaf" || node.forward.length === 0) return s;
+
+          const forward = [...node.forward];
+          const next = forward.pop()!;
+          const historyEntry: PaneEntry = { contentType: node.contentType, contentId: node.contentId };
+
+          const updated: PaneLeaf = {
+            ...node,
+            contentType: next.contentType,
+            contentId: next.contentId,
+            history: [...node.history, historyEntry],
+            forward,
+          };
+          return { root: replaceNode(s.root, s.activePaneId, updated) };
+        });
+      },
+
+      canGoBack: () => {
+        const s = get();
+        const node = findNode(s.root, s.activePaneId);
+        return !!node && node.kind === "leaf" && node.history.length > 0;
+      },
+
+      canGoForward: () => {
+        const s = get();
+        const node = findNode(s.root, s.activePaneId);
+        return !!node && node.kind === "leaf" && node.forward.length > 0;
       },
     }),
     { name: "doction-panes" },

@@ -14,12 +14,16 @@ export function FolderPageContent({ folderId }: { folderId: string }) {
   const { updateTab, tabs } = useTabsStore();
 
   useEffect(() => {
-    if (folderMeta?.name) {
+    // Use the resolved path name (handles shared drive names correctly)
+    const resolvedName = pathData && pathData.length > 0
+      ? pathData[pathData.length - 1].name
+      : folderMeta?.name;
+    if (resolvedName) {
       const tab = tabs.find((t) => t.path === `/folder/${folderId}`);
-      if (tab) updateTab(tab.id, { title: folderMeta.name, mimeType: folderMeta.mimeType });
+      if (tab) updateTab(tab.id, { title: resolvedName, mimeType: folderMeta?.mimeType ?? "application/vnd.google-apps.folder" });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folderMeta?.name]);
+  }, [pathData, folderMeta?.name]);
 
   const files = filesData?.files ?? [];
   const folders = files.filter((f) => isFolder(f.mimeType));

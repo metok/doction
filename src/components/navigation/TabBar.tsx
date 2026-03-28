@@ -130,9 +130,10 @@ export function TabBar() {
         </button>
       </div>
 
-      {/* Tab list */}
+      {/* Tab list — drag-region so empty space between tabs is draggable */}
       <div
         ref={scrollRef}
+        data-tauri-drag-region
         className="flex min-w-0 flex-1 items-stretch overflow-x-auto scrollbar-none"
         style={{ scrollbarWidth: "none" }}
       >

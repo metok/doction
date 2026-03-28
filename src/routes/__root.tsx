@@ -9,6 +9,7 @@ import { TabBar } from "@/components/navigation/TabBar";
 import { ActivityPanel } from "@/components/panels/ActivityPanel";
 import { PaneRenderer } from "@/components/panes/PaneRenderer";
 import { usePreferencesStore } from "@/lib/stores/preferences";
+import { useSidebarStore } from "@/lib/stores/sidebar";
 import { useTabsStore } from "@/lib/stores/tabs";
 import { usePanesStore } from "@/lib/stores/panes";
 import { registerActions, unregisterActions, getActions, type AppAction } from "@/lib/actions";
@@ -24,8 +25,15 @@ function pathToPane(path: string): { contentType: "home" | "recent" | "favorites
   return { contentType: "home" };
 }
 
+/** Map pane content back to a tab path. Returns null for page-types that don't have tabs. */
+function paneToPath(contentType: string, contentId?: string): string | null {
+  if (contentId) return `/${contentType}/${contentId}`;
+  return null; // home, recent, favorites, trash don't have tabs
+}
+
 function RootLayout() {
   const { theme } = usePreferencesStore();
+  const { collapsed, sidebarWidth } = useSidebarStore();
   const [cmdkOpen, setCmdkOpen] = useState(false);
   const router = useRouter();
   const root = usePanesStore((s) => s.root);
@@ -68,6 +76,31 @@ function RootLayout() {
     return () => unregisterActions(actions.map((a) => a.id));
   }, [router, closeActiveTab, navigatePane]);
 
+  // Sync active tab to match active pane's content
+  useEffect(() => {
+    return usePanesStore.subscribe((state) => {
+      const leaf = state.getActiveLeaf();
+      if (!leaf) return;
+
+      const path = paneToPath(leaf.contentType, leaf.contentId);
+      if (!path) {
+        // Page-type content (home, recent, etc.) — deselect all tabs
+        useTabsStore.setState({ activeTabId: null });
+        return;
+      }
+
+      // Find matching tab and activate it
+      const { tabs } = useTabsStore.getState();
+      const matching = tabs.find((t) => t.path === path);
+      if (matching) {
+        useTabsStore.getState().setActive(matching.id);
+      } else {
+        // No matching tab — deselect
+        useTabsStore.setState({ activeTabId: null });
+      }
+    });
+  }, []);
+
   // Global keyboard handler — matches registered action shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -98,7 +131,10 @@ function RootLayout() {
         <ApiProvider>
           <Sidebar onOpenCommandPalette={() => setCmdkOpen(true)} />
           <CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} />
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <div
+            className="flex flex-1 flex-col overflow-hidden"
+            style={{ paddingLeft: Math.max(0, 76 - (collapsed ? 48 : sidebarWidth)) }}
+          >
             <TabBar />
             <main className="flex flex-1 overflow-hidden bg-bg-primary">
               <PaneRenderer node={root} />

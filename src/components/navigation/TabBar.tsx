@@ -25,6 +25,7 @@ import {
   isImage,
 } from "@/lib/google/types";
 import { usePanelsStore } from "@/lib/stores/panels";
+import { Tooltip } from "@/components/Tooltip";
 
 function TabIcon({ mimeType }: { mimeType?: string }) {
   if (!mimeType) return <File className="h-3.5 w-3.5 shrink-0 text-text-muted" />;
@@ -110,22 +111,24 @@ export function TabBar() {
     <div className="flex h-9 shrink-0 items-stretch border-b border-border bg-bg-secondary" data-tauri-drag-region>
       {/* Back / Forward */}
       <div className="flex shrink-0 items-center gap-0.5 border-r border-border px-1.5">
-        <button
-          onClick={handleBack}
-          title="Go back"
-          className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          aria-label="Go back"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <button
-          onClick={handleForward}
-          title="Go forward"
-          className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          aria-label="Go forward"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        <Tooltip label="Back">
+          <button
+            onClick={handleBack}
+            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        </Tooltip>
+        <Tooltip label="Forward">
+          <button
+            onClick={handleForward}
+            className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            aria-label="Go forward"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Tab list — drag-region so empty space between tabs is draggable */}
@@ -178,71 +181,75 @@ export function TabBar() {
 
       {/* Reveal in sidebar */}
       <div className="flex shrink-0 items-center px-0.5">
-        <button
-          onClick={isOnFilePage ? handleRevealInSidebar : undefined}
-          title="Reveal in sidebar"
-          disabled={!isOnFilePage}
-          className={[
-            "rounded p-1 transition-colors",
-            isOnFilePage
-              ? "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
-              : "cursor-default text-text-muted/30",
-          ].join(" ")}
-          aria-label="Reveal current file in sidebar"
-        >
-          <Crosshair className="h-4 w-4" />
-        </button>
+        <Tooltip label="Reveal in sidebar">
+          <button
+            onClick={isOnFilePage ? handleRevealInSidebar : undefined}
+            disabled={!isOnFilePage}
+            className={[
+              "rounded p-1 transition-colors",
+              isOnFilePage
+                ? "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+                : "cursor-default text-text-muted/30",
+            ].join(" ")}
+            aria-label="Reveal current file in sidebar"
+          >
+            <Crosshair className="h-4 w-4" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Home */}
       <div className="flex shrink-0 items-center px-0.5">
-        <button
-          onClick={() => router.navigate({ to: "/" })}
-          title="Home"
-          className={[
-            "rounded p-1 transition-colors",
-            currentPath === "/"
-              ? "bg-bg-tertiary text-text-primary"
-              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
-          ].join(" ")}
-          aria-label="Home"
-        >
-          <Home className="h-4 w-4" />
-        </button>
+        <Tooltip label="Home" shortcut="⌘⇧H">
+          <button
+            onClick={() => router.navigate({ to: "/" })}
+            className={[
+              "rounded p-1 transition-colors",
+              currentPath === "/"
+                ? "bg-bg-tertiary text-text-primary"
+                : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
+            ].join(" ")}
+            aria-label="Home"
+          >
+            <Home className="h-4 w-4" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Recent */}
       <div className="flex shrink-0 items-center px-0.5">
-        <button
-          onClick={() => router.navigate({ to: "/recent" })}
-          title="Recent"
-          className={[
-            "rounded p-1 transition-colors",
-            currentPath === "/recent"
-              ? "bg-bg-tertiary text-text-primary"
-              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
-          ].join(" ")}
-          aria-label="Recent"
-        >
-          <Clock className="h-4 w-4" />
-        </button>
+        <Tooltip label="Recent" shortcut="⌘⇧R">
+          <button
+            onClick={() => router.navigate({ to: "/recent" })}
+            className={[
+              "rounded p-1 transition-colors",
+              currentPath === "/recent"
+                ? "bg-bg-tertiary text-text-primary"
+                : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
+            ].join(" ")}
+            aria-label="Recent"
+          >
+            <Clock className="h-4 w-4" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Activity button */}
       <div className="flex shrink-0 items-center border-l border-border px-1.5">
-        <button
-          onClick={toggleActivity}
-          title="Activity"
-          aria-label="Toggle activity panel"
-          className={[
-            "rounded p-1 transition-colors",
-            activityOpen
-              ? "bg-bg-tertiary text-text-primary"
-              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
-          ].join(" ")}
-        >
-          <Bell className="h-4 w-4" />
-        </button>
+        <Tooltip label="Activity">
+          <button
+            onClick={toggleActivity}
+            aria-label="Toggle activity panel"
+            className={[
+              "rounded p-1 transition-colors",
+              activityOpen
+                ? "bg-bg-tertiary text-text-primary"
+                : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
+            ].join(" ")}
+          >
+            <Bell className="h-4 w-4" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Logo */}

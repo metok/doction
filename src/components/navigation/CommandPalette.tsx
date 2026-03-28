@@ -14,6 +14,7 @@ import {
   isPdf,
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
+import { getActions, filterActions } from "@/lib/actions";
 
 const groupHeadingClass = "[&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-text-muted";
 const itemClass = "flex cursor-pointer items-center gap-3 px-4 py-2 text-sm text-text-secondary transition-colors aria-selected:bg-bg-tertiary aria-selected:text-text-primary";
@@ -145,28 +146,46 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
               {/* Results */}
               <Command.List className="max-h-[360px] overflow-y-auto py-2">
                 {query.length === 0 ? (
-                  recentFiles.length > 0 ? (
-                    <Command.Group
-                      heading="Recent"
-                      className={groupHeadingClass}
-                    >
-                      {recentFiles.map((file) => (
-                        <Command.Item
-                          key={file.id}
-                          value={file.id}
-                          onSelect={() => handleSelect(file)}
-                          className={itemClass}
-                        >
-                          <FileIcon mimeType={file.mimeType} />
-                          <span className="flex-1 truncate">{file.name}</span>
-                        </Command.Item>
-                      ))}
+                  <>
+                    {/* Actions */}
+                    <Command.Group heading="Actions" className={groupHeadingClass}>
+                      {getActions().filter((a) => a.id !== "nav:search" && a.id !== "tab:close").map((action) => {
+                        const Icon = action.icon;
+                        return (
+                          <Command.Item
+                            key={action.id}
+                            value={action.id}
+                            onSelect={() => { action.run(); onOpenChange(false); setQuery(""); }}
+                            className={itemClass}
+                          >
+                            <Icon className="h-4 w-4 shrink-0 text-text-muted" />
+                            <span className="flex-1 truncate">{action.label}</span>
+                            {action.shortcut && (
+                              <kbd className="rounded bg-bg-tertiary px-1.5 py-0.5 font-mono text-[10px] text-text-muted">
+                                {action.shortcut}
+                              </kbd>
+                            )}
+                          </Command.Item>
+                        );
+                      })}
                     </Command.Group>
-                  ) : (
-                    <Command.Empty className="px-4 py-8 text-center text-sm text-text-muted">
-                      No recent files. Start typing to search.
-                    </Command.Empty>
-                  )
+                    {/* Recent files */}
+                    {recentFiles.length > 0 && (
+                      <Command.Group heading="Recent" className={groupHeadingClass}>
+                        {recentFiles.map((file) => (
+                          <Command.Item
+                            key={file.id}
+                            value={file.id}
+                            onSelect={() => handleSelect(file)}
+                            className={itemClass}
+                          >
+                            <FileIcon mimeType={file.mimeType} />
+                            <span className="flex-1 truncate">{file.name}</span>
+                          </Command.Item>
+                        ))}
+                      </Command.Group>
+                    )}
+                  </>
                 ) : (isTyping || isSearching) && matchingDrives.length === 0 ? (
                   <div className="flex flex-col items-center gap-3 px-4 py-8">
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-accent" />
@@ -174,8 +193,32 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                       Searching for &ldquo;{query}&rdquo;&hellip;
                     </span>
                   </div>
-                ) : (searchResults.length > 0 || matchingDrives.length > 0) ? (
+                ) : (searchResults.length > 0 || matchingDrives.length > 0 || filterActions(query).length > 0) ? (
                   <>
+                    {/* Matching actions */}
+                    {filterActions(query).length > 0 && (
+                      <Command.Group heading="Actions" className={groupHeadingClass}>
+                        {filterActions(query).map((action) => {
+                          const Icon = action.icon;
+                          return (
+                            <Command.Item
+                              key={action.id}
+                              value={action.id}
+                              onSelect={() => { action.run(); onOpenChange(false); setQuery(""); }}
+                              className={itemClass}
+                            >
+                              <Icon className="h-4 w-4 shrink-0 text-text-muted" />
+                              <span className="flex-1 truncate">{action.label}</span>
+                              {action.shortcut && (
+                                <kbd className="rounded bg-bg-tertiary px-1.5 py-0.5 font-mono text-[10px] text-text-muted">
+                                  {action.shortcut}
+                                </kbd>
+                              )}
+                            </Command.Item>
+                          );
+                        })}
+                      </Command.Group>
+                    )}
                     {/* Matching drives */}
                     {matchingDrives.length > 0 && (
                       <Command.Group

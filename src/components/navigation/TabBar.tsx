@@ -25,6 +25,7 @@ import {
   isImage,
 } from "@/lib/google/types";
 import { usePanelsStore } from "@/lib/stores/panels";
+import { usePanesStore } from "@/lib/stores/panes";
 import { Tooltip } from "@/components/Tooltip";
 
 function TabIcon({ mimeType }: { mimeType?: string }) {
@@ -36,15 +37,31 @@ function TabIcon({ mimeType }: { mimeType?: string }) {
   return <File className="h-3.5 w-3.5 shrink-0 text-text-muted" />;
 }
 
+/** Map a tab path to pane content type + id. */
+function pathToPane(path: string): { contentType: "home" | "recent" | "favorites" | "trash" | "doc" | "sheet" | "folder" | "file"; contentId?: string } {
+  if (path === "/") return { contentType: "home" };
+  if (path === "/recent") return { contentType: "recent" };
+  if (path === "/favorites") return { contentType: "favorites" };
+  if (path === "/trash") return { contentType: "trash" };
+  const match = path.match(/^\/(doc|sheet|folder|file)\/(.+)$/);
+  if (match) return { contentType: match[1] as "doc" | "sheet" | "folder" | "file", contentId: match[2] };
+  return { contentType: "home" };
+}
+
 export function TabBar() {
   const router = useRouter();
   const { tabs, activeTabId, closeTab, setActive } = useTabsStore();
   const { activityOpen, toggleActivity } = usePanelsStore();
+  const setPaneContent = usePanesStore((s) => s.setPaneContent);
+  const activePaneId = usePanesStore((s) => s.activePaneId);
+  const activeLeaf = usePanesStore((s) => s.getActiveLeaf());
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function handleTabClick(tab: Tab) {
     setActive(tab.id);
-    router.navigate({ to: tab.path });
+    // Navigate active pane to this tab's content
+    const { contentType, contentId } = pathToPane(tab.path);
+    setPaneContent(activePaneId, contentType, contentId);
   }
 
   function handleClose(e: React.MouseEvent, id: string) {
@@ -53,7 +70,6 @@ export function TabBar() {
 
     closeTab(id);
 
-    // If we just closed the active tab, navigate to the new active one
     if (currentActive === id) {
       const idx = currentTabs.findIndex((t) => t.id === id);
       const remaining = currentTabs.filter((t) => t.id !== id);
@@ -61,10 +77,11 @@ export function TabBar() {
         const newIdx = Math.max(0, idx - 1);
         const target = remaining[newIdx];
         if (target) {
-          router.navigate({ to: target.path });
+          const { contentType, contentId } = pathToPane(target.path);
+          setPaneContent(activePaneId, contentType, contentId);
         }
       } else {
-        router.navigate({ to: "/" });
+        setPaneContent(activePaneId, "home");
       }
     }
   }
@@ -82,7 +99,7 @@ export function TabBar() {
   const routerState = useRouterState();
 
   const currentPath = routerState.location.pathname;
-  const isOnFilePage = /^\/(folder|doc|sheet|file)\//.test(currentPath);
+  const isOnFilePage = activeLeaf ? ["doc", "sheet", "folder", "file"].includes(activeLeaf.contentType) : /^\/(folder|doc|sheet|file)\//.test(currentPath);
 
   const handleRevealInSidebar = useCallback(async () => {
     const path = routerState.location.pathname;
@@ -202,10 +219,10 @@ export function TabBar() {
       <div className="flex shrink-0 items-center px-0.5">
         <Tooltip label="Home" shortcut="⌘⇧H">
           <button
-            onClick={() => router.navigate({ to: "/" })}
+            onClick={() => setPaneContent(activePaneId, "home")}
             className={[
               "rounded p-1 transition-colors",
-              currentPath === "/"
+              activeLeaf?.contentType === "home"
                 ? "bg-bg-tertiary text-text-primary"
                 : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
             ].join(" ")}
@@ -220,10 +237,10 @@ export function TabBar() {
       <div className="flex shrink-0 items-center px-0.5">
         <Tooltip label="Recent" shortcut="⌘⇧R">
           <button
-            onClick={() => router.navigate({ to: "/recent" })}
+            onClick={() => setPaneContent(activePaneId, "recent")}
             className={[
               "rounded p-1 transition-colors",
-              currentPath === "/recent"
+              activeLeaf?.contentType === "recent"
                 ? "bg-bg-tertiary text-text-primary"
                 : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
             ].join(" ")}

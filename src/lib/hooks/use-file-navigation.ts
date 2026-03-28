@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { useRouter } from "@tanstack/react-router";
 import { useRecentStore } from "@/lib/stores/recent";
 import { useTabsStore } from "@/lib/stores/tabs";
+import { usePanesStore, type PaneContentType } from "@/lib/stores/panes";
 import { isFolder, isDocument, isSpreadsheet, isImage, isPdf } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
 
@@ -14,26 +14,21 @@ export function getFileRoute(file: DriveFile): string {
   return `/file/${file.id}`;
 }
 
-function navigateToRoute(router: ReturnType<typeof useRouter>, file: DriveFile) {
-  if (isFolder(file.mimeType)) {
-    router.navigate({ to: "/folder/$folderId", params: { folderId: file.id } });
-  } else if (isDocument(file.mimeType)) {
-    router.navigate({ to: "/doc/$docId", params: { docId: file.id } });
-  } else if (isSpreadsheet(file.mimeType)) {
-    router.navigate({ to: "/sheet/$sheetId", params: { sheetId: file.id } });
-  } else {
-    router.navigate({ to: "/file/$fileId", params: { fileId: file.id } });
-  }
+/** Derive pane content type from a DriveFile */
+export function getContentType(file: DriveFile): PaneContentType {
+  if (isFolder(file.mimeType)) return "folder";
+  if (isDocument(file.mimeType)) return "doc";
+  if (isSpreadsheet(file.mimeType)) return "sheet";
+  return "file";
 }
 
 /**
  * Central file navigation hook.
  *
- * Normal click → navigate to file (tab created automatically by __root effect).
- * Ctrl/Cmd+Click → open in background tab without navigating.
+ * Normal click → update active pane content + create/activate tab.
+ * Ctrl/Cmd+Click → add background tab without navigating.
  */
 export function useFileNavigation() {
-  const router = useRouter();
   const addRecent = useRecentStore((s) => s.addFile);
 
   return useCallback(
@@ -46,9 +41,22 @@ export function useFileNavigation() {
         const path = getFileRoute(file);
         useTabsStore.getState().addTab({ path, title: file.name, mimeType: file.mimeType });
       } else {
-        navigateToRoute(router, file);
+        // Navigate in active pane
+        const { activePaneId, setPaneContent } = usePanesStore.getState();
+        setPaneContent(activePaneId, getContentType(file), file.id);
+
+        // Sync tab
+        const path = getFileRoute(file);
+        const { tabs, addTab, setActive } = useTabsStore.getState();
+        const existing = tabs.find((t) => t.path === path);
+        if (existing) {
+          setActive(existing.id);
+        } else {
+          const id = addTab({ path, title: file.name, mimeType: file.mimeType });
+          setActive(id);
+        }
       }
     },
-    [router, addRecent],
+    [addRecent],
   );
 }

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Star, Eye, EyeOff } from "lucide-react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
+import { usePanesStore, type PaneContentType } from "@/lib/stores/panes";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
 import { SharedDrivesTree, MyDriveTree } from "./FolderTree";
@@ -30,6 +31,24 @@ function HiddenToggle() {
       title={showHidden ? `Hide ${count} hidden items` : `Show ${count} hidden items`}
     >
       {showHidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+    </button>
+  );
+}
+
+function PaneNavButton({ contentType, icon: Icon, title }: { contentType: PaneContentType; icon: React.ComponentType<{ className?: string }>; title: string }) {
+  const activeLeaf = usePanesStore((s) => s.getActiveLeaf());
+  const isActive = activeLeaf?.contentType === contentType;
+
+  return (
+    <button
+      onClick={() => {
+        const { activePaneId, setPaneContent } = usePanesStore.getState();
+        setPaneContent(activePaneId, contentType);
+      }}
+      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${isActive ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
+      title={title}
+    >
+      <Icon className="h-4 w-4" />
     </button>
   );
 }
@@ -85,25 +104,13 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         <div className="mx-2 my-2 w-5 border-b border-border/40" />
 
         {/* Favorites */}
-        <Link
-          to="/favorites"
-          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/favorites" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
-          title="Favorites"
-        >
-          <Star className="h-4 w-4" />
-        </Link>
+        <PaneNavButton contentType="favorites" icon={Star} title="Favorites" />
 
         {/* Spacer */}
         <div className="flex-1" />
 
         {/* Home */}
-        <Link
-          to="/"
-          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
-          title="Home"
-        >
-          <Home className="h-4 w-4" />
-        </Link>
+        <PaneNavButton contentType="home" icon={Home} title="Home" />
 
         {/* New Doc */}
         <button
@@ -115,13 +122,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         </button>
 
         {/* Trash */}
-        <Link
-          to="/trash"
-          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/trash" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
-          title="Trash"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Link>
+        <PaneNavButton contentType="trash" icon={Trash2} title="Trash" />
 
         <FolderPicker
           open={pickerOpen}
@@ -178,17 +179,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
       {/* ── Quick action toolbar ── */}
       <div className="flex items-center justify-center gap-1 border-t border-border/40 px-3 py-2.5">
-        <Link
-          to="/"
-          className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors ${
-            pathname === "/"
-              ? "bg-bg-tertiary text-text-primary"
-              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
-          }`}
-          title="Home"
-        >
-          <Home className="h-4 w-4" />
-        </Link>
+        <PaneNavButton contentType="home" icon={Home} title="Home" />
 
         <button
           onClick={() => openNewPicker("doc")}
@@ -206,17 +197,7 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
           <Sheet className="h-4 w-4" />
         </button>
 
-        <Link
-          to="/trash"
-          className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors ${
-            pathname === "/trash"
-              ? "bg-bg-tertiary text-text-primary"
-              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
-          }`}
-          title="Trash"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Link>
+        <PaneNavButton contentType="trash" icon={Trash2} title="Trash" />
 
         <HiddenToggle />
 

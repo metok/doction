@@ -37,7 +37,8 @@
       align-items: center;
       justify-content: space-between;
     }
-    .logo { font-size: 1.25rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    .logo { font-size: 1.25rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+    .logo img { width: 28px; height: 28px; border-radius: 6px; }
     nav ul { list-style: none; display: flex; gap: 28px; }
     nav a { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
     nav a:hover { color: var(--text); text-decoration: none; }
@@ -72,7 +73,7 @@
 
   <nav>
     <div class="container">
-      <a href="index.html" class="logo">Doction</a>
+      <a href="index.html" class="logo"><img src="icon.png" alt="Doction logo">Doction</a>
       <ul>
         <li><a href="https://github.com/metok/doction">GitHub</a></li>
         <li><a href="privacy.html">Privacy</a></li>

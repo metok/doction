@@ -65,16 +65,16 @@ export function ImagePreview({ src, alt = "Image preview" }: ImagePreviewProps) 
       </div>
 
       {/* Scrollable image container */}
-      <div className="flex flex-1 overflow-auto">
-        <div className="flex min-h-full min-w-full items-center justify-center p-8">
+      <div className="relative flex-1 overflow-auto">
+        <div className="inline-flex min-h-full min-w-full items-center justify-center p-8">
           <img
             src={src}
             alt={alt}
+            className="block"
             style={{
-              transform: `scale(${zoom})`,
-              transformOrigin: "center center",
-              transition: "transform 0.15s ease",
+              width: `${zoom * 100}%`,
               maxWidth: "none",
+              transition: "width 0.15s ease",
             }}
           />
         </div>

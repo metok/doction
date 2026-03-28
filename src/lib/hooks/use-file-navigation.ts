@@ -36,19 +36,21 @@ export function useFileNavigation() {
       addRecent(file);
       const background = event && (event.metaKey || event.ctrlKey);
 
+      const path = getFileRoute(file);
+      const { tabs, addTab, setActive } = useTabsStore.getState();
+      const existing = tabs.find((t) => t.path === path);
+
       if (background) {
-        // Add tab in background without navigating
-        const path = getFileRoute(file);
-        useTabsStore.getState().addTab({ path, title: file.name, mimeType: file.mimeType });
+        // Ensure tab exists, don't navigate
+        if (!existing) {
+          addTab({ path, title: file.name, mimeType: file.mimeType });
+        }
       } else {
         // Navigate in active pane
         const { activePaneId, setPaneContent } = usePanesStore.getState();
         setPaneContent(activePaneId, getContentType(file), file.id);
 
-        // Sync tab
-        const path = getFileRoute(file);
-        const { tabs, addTab, setActive } = useTabsStore.getState();
-        const existing = tabs.find((t) => t.path === path);
+        // Reuse existing tab or create one
         if (existing) {
           setActive(existing.id);
         } else {

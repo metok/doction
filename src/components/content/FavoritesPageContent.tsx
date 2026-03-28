@@ -1,12 +1,10 @@
-import { Loader2 } from "lucide-react";
-import { useStarredFiles } from "@/lib/hooks/use-drive-files";
+import { useFavoritesStore } from "@/lib/stores/favorites";
 import { FolderView } from "@/components/content/FolderView";
 import { isFolder } from "@/lib/google/types";
 
 export function FavoritesPageContent() {
-  const { data, isLoading, isError } = useStarredFiles();
+  const files = useFavoritesStore((s) => s.files);
 
-  const files = data?.files ?? [];
   const folders = files.filter((f) => isFolder(f.mimeType));
   const nonFolders = files.filter((f) => !isFolder(f.mimeType));
   const sorted = [...folders, ...nonFolders];
@@ -18,19 +16,16 @@ export function FavoritesPageContent() {
         <p className="mt-1 text-sm text-text-secondary">Your starred files</p>
       </div>
 
-      {isLoading && (
-        <div className="flex flex-1 items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-text-muted" />
+      {sorted.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-sm text-text-muted">No favorites yet</p>
+          <p className="mt-1 text-xs text-text-muted">
+            Star files to add them here
+          </p>
         </div>
+      ) : (
+        <FolderView files={sorted} />
       )}
-
-      {isError && (
-        <div className="rounded-lg border border-border bg-bg-secondary p-4 text-sm text-amber">
-          Failed to load starred files. Please try again.
-        </div>
-      )}
-
-      {!isLoading && !isError && <FolderView files={sorted} />}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useRouter } from "@tanstack/react-router";
 import {
   Loader2,
@@ -150,6 +151,12 @@ function SharedDriveCard({ drive, onClick }: { drive: SharedDrive; onClick: () =
 // ── Main ───────────────────────────────────────────────────────────────────
 
 export function HomePageContent() {
+  const [greeting, setGreeting] = useState(getGreeting);
+  useEffect(() => {
+    const id = setInterval(() => setGreeting(getGreeting()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const { data: userInfo } = useUserInfo();
   const navigateTo = useFileNavigation();
   const router = useRouter();
@@ -171,7 +178,7 @@ export function HomePageContent() {
     <div className="flex flex-1 flex-col overflow-y-auto">
       <div className="px-8 pb-6 pt-10">
         <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-          {getGreeting()}{firstName ? `, ${firstName}` : ""}
+          {greeting}{firstName ? `, ${firstName}` : ""}
         </h1>
         <p className="mt-1 text-sm text-text-muted">Quick access to your workspace</p>
       </div>

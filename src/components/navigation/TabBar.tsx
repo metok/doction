@@ -3,7 +3,6 @@ import { useRouter, useRouterState } from "@tanstack/react-router";
 import {
   ChevronLeft,
   ChevronRight,
-  Plus,
   X,
   Folder,
   FileText,
@@ -12,6 +11,8 @@ import {
   File,
   Bell,
   Crosshair,
+  Home,
+  Clock,
 } from "lucide-react";
 import { useTabsStore } from "@/lib/stores/tabs";
 import type { Tab } from "@/lib/stores/tabs";
@@ -36,7 +37,7 @@ function TabIcon({ mimeType }: { mimeType?: string }) {
 
 export function TabBar() {
   const router = useRouter();
-  const { tabs, activeTabId, closeTab, setActive, addTab } = useTabsStore();
+  const { tabs, activeTabId, closeTab, setActive } = useTabsStore();
   const { activityOpen, toggleActivity } = usePanelsStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -67,12 +68,6 @@ export function TabBar() {
     }
   }
 
-  function handleNewTab() {
-    const id = addTab({ path: "/", title: "Home" });
-    setActive(id);
-    router.navigate({ to: "/" });
-  }
-
   function handleBack() {
     router.history.back();
   }
@@ -84,6 +79,9 @@ export function TabBar() {
   const { drive } = useApi();
   const { revealPath, setHighlight, expand } = useTreeStateStore();
   const routerState = useRouterState();
+
+  const currentPath = routerState.location.pathname;
+  const isOnFilePage = /^\/(folder|doc|sheet|file)\//.test(currentPath);
 
   const handleRevealInSidebar = useCallback(async () => {
     const path = routerState.location.pathname;
@@ -178,27 +176,55 @@ export function TabBar() {
         })}
       </div>
 
-      {/* New tab button */}
-      <div className="flex shrink-0 items-center border-l border-border px-1.5">
-        <button
-          onClick={handleNewTab}
-          title="New tab"
-          className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          aria-label="Open new tab"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
-      </div>
-
       {/* Reveal in sidebar */}
       <div className="flex shrink-0 items-center px-0.5">
         <button
-          onClick={handleRevealInSidebar}
+          onClick={isOnFilePage ? handleRevealInSidebar : undefined}
           title="Reveal in sidebar"
-          className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+          disabled={!isOnFilePage}
+          className={[
+            "rounded p-1 transition-colors",
+            isOnFilePage
+              ? "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"
+              : "cursor-default text-text-muted/30",
+          ].join(" ")}
           aria-label="Reveal current file in sidebar"
         >
           <Crosshair className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Home */}
+      <div className="flex shrink-0 items-center px-0.5">
+        <button
+          onClick={() => router.navigate({ to: "/" })}
+          title="Home"
+          className={[
+            "rounded p-1 transition-colors",
+            currentPath === "/"
+              ? "bg-bg-tertiary text-text-primary"
+              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
+          ].join(" ")}
+          aria-label="Home"
+        >
+          <Home className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Recent */}
+      <div className="flex shrink-0 items-center px-0.5">
+        <button
+          onClick={() => router.navigate({ to: "/recent" })}
+          title="Recent"
+          className={[
+            "rounded p-1 transition-colors",
+            currentPath === "/recent"
+              ? "bg-bg-tertiary text-text-primary"
+              : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary",
+          ].join(" ")}
+          aria-label="Recent"
+        >
+          <Clock className="h-4 w-4" />
         </button>
       </div>
 
@@ -217,6 +243,11 @@ export function TabBar() {
         >
           <Bell className="h-4 w-4" />
         </button>
+      </div>
+
+      {/* Logo */}
+      <div className="flex shrink-0 items-center px-2">
+        <img src="/icons/icon.png" alt="Doction" className="h-5 w-5 rounded" />
       </div>
     </div>
   );

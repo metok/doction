@@ -19,11 +19,13 @@ function RootLayout() {
 
   useEffect(() => {
     const path = routerState.location.pathname;
+    // Home and Recent are pinned nav buttons in the tab bar — no tab needed
+    if (path === "/" || path === "/recent") return;
     const existing = tabs.find((t) => t.path === path);
     if (existing) {
       setActive(existing.id);
     } else {
-      const title = path === "/" ? "Home" : (path.split("/").pop() ?? "Page");
+      const title = path.split("/").pop() ?? "Page";
       const id = addTab({ path, title });
       setActive(id);
     }

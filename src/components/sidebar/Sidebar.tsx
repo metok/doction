@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Clock, Star, Eye, EyeOff } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Star, Eye, EyeOff } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
 import { useSidebarStore } from "@/lib/stores/sidebar";
@@ -83,15 +83,6 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         </button>
 
         <div className="mx-2 my-2 w-5 border-b border-border/40" />
-
-        {/* Recent */}
-        <Link
-          to="/recent"
-          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${pathname === "/recent" ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
-          title="Recent"
-        >
-          <Clock className="h-4 w-4" />
-        </Link>
 
         {/* Favorites */}
         <Link

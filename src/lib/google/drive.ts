@@ -52,6 +52,14 @@ export function createDriveApi(client: ApiClient) {
     return client.get<SharedDriveList>(`${BASE_URL}/drives?pageSize=100`);
   }
 
+  async function getSharedDrive(driveId: string): Promise<{ id: string; name: string } | null> {
+    try {
+      return await client.get<{ id: string; name: string }>(`${BASE_URL}/drives/${driveId}`);
+    } catch {
+      return null;
+    }
+  }
+
   async function getStarredFiles(): Promise<DriveFileList> {
     const params = new URLSearchParams({
       q: "starred = true and trashed = false",
@@ -90,7 +98,14 @@ export function createDriveApi(client: ApiClient) {
   ): Promise<DriveFile[]> {
     if (depth >= 20) return [];
     const file = await getFile(fileId);
-    if (!file.parents || file.parents.length === 0) return [file];
+    if (!file.parents || file.parents.length === 0) {
+      // Root reached — check if this is a shared drive and use its real name
+      const drive = await getSharedDrive(file.id);
+      if (drive) {
+        return [{ ...file, name: drive.name }];
+      }
+      return [file];
+    }
     const parentPath = await getFilePath(file.parents[0], depth + 1);
     return [...parentPath, file];
   }
@@ -151,6 +166,7 @@ export function createDriveApi(client: ApiClient) {
     getFilePath,
     getDownloadUrl,
     listSharedDrives,
+    getSharedDrive,
     getUserInfo,
     getStartPageToken,
     listChanges,

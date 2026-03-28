@@ -68,25 +68,17 @@ export function TabBar() {
     setPaneContent(activePaneId, contentType, contentId);
   }
 
+  const navigateAway = usePanesStore((s) => s.navigatePanesAwayFrom);
+
   function handleClose(e: React.MouseEvent, id: string) {
     e.stopPropagation();
-    const { tabs: currentTabs, activeTabId: currentActive } = useTabsStore.getState();
-
+    const tab = useTabsStore.getState().tabs.find((t) => t.id === id);
     closeTab(id);
 
-    if (currentActive === id) {
-      const idx = currentTabs.findIndex((t) => t.id === id);
-      const remaining = currentTabs.filter((t) => t.id !== id);
-      if (remaining.length > 0) {
-        const newIdx = Math.max(0, idx - 1);
-        const target = remaining[newIdx];
-        if (target) {
-          const { contentType, contentId } = pathToPane(target.path);
-          setPaneContent(activePaneId, contentType, contentId);
-        }
-      } else {
-        setPaneContent(activePaneId, "home");
-      }
+    // Navigate any panes showing this tab's content away
+    if (tab) {
+      const { contentType, contentId } = pathToPane(tab.path);
+      navigateAway(contentType, contentId);
     }
   }
 

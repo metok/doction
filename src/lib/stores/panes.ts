@@ -92,6 +92,12 @@ function countLeaves(node: PaneNode): number {
   return countLeaves(node.children[0]) + countLeaves(node.children[1]);
 }
 
+/** Collect all leaves. */
+function collectLeaves(node: PaneNode): PaneLeaf[] {
+  if (node.kind === "leaf") return [node];
+  return [...collectLeaves(node.children[0]), ...collectLeaves(node.children[1])];
+}
+
 const MAX_HISTORY = 50;
 
 /** Patch old persisted leaf nodes that lack history/forward fields. */
@@ -124,6 +130,9 @@ interface PanesState {
   canGoBack: () => boolean;
   /** Whether the active pane can go forward. */
   canGoForward: () => boolean;
+
+  /** Navigate all panes showing the given content away (back or home). */
+  navigatePanesAwayFrom: (contentType: PaneContentType, contentId?: string) => void;
 }
 
 const DEFAULT_PANE_ID = "pane-default";
@@ -284,6 +293,43 @@ export const usePanesStore = create<PanesState>()(
         const s = get();
         const node = findNode(s.root, s.activePaneId);
         return !!node && node.kind === "leaf" && node.forward.length > 0;
+      },
+
+      navigatePanesAwayFrom: (contentType, contentId) => {
+        set((s) => {
+          const leaves = collectLeaves(s.root);
+          let newRoot = s.root;
+
+          for (const leaf of leaves) {
+            if (leaf.contentType !== contentType || leaf.contentId !== contentId) continue;
+
+            // Try going back in history
+            if (leaf.history.length > 0) {
+              const history = [...leaf.history];
+              const prev = history.pop()!;
+              const updated: PaneLeaf = {
+                ...leaf,
+                contentType: prev.contentType,
+                contentId: prev.contentId,
+                history,
+                forward: [],
+              };
+              newRoot = replaceNode(newRoot, leaf.id, updated);
+            } else {
+              // No history — go home
+              const updated: PaneLeaf = {
+                ...leaf,
+                contentType: "home",
+                contentId: undefined,
+                history: [],
+                forward: [],
+              };
+              newRoot = replaceNode(newRoot, leaf.id, updated);
+            }
+          }
+
+          return { root: newRoot };
+        });
       },
     }),
     {

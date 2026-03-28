@@ -9,7 +9,7 @@ import { TabBar } from "@/components/navigation/TabBar";
 import { ActivityPanel } from "@/components/panels/ActivityPanel";
 import { PaneRenderer } from "@/components/panes/PaneRenderer";
 import { usePreferencesStore } from "@/lib/stores/preferences";
-import { useSidebarStore } from "@/lib/stores/sidebar";
+
 import { useTabsStore } from "@/lib/stores/tabs";
 import { usePanesStore } from "@/lib/stores/panes";
 import { registerActions, unregisterActions, getActions, type AppAction } from "@/lib/actions";
@@ -33,25 +33,24 @@ function paneToPath(contentType: string, contentId?: string): string | null {
 
 function RootLayout() {
   const { theme } = usePreferencesStore();
-  const { collapsed, sidebarWidth } = useSidebarStore();
+
   const [cmdkOpen, setCmdkOpen] = useState(false);
   const router = useRouter();
   const root = usePanesStore((s) => s.root);
 
-  // Close active tab — navigates the active pane to the next tab or home
+  // Close active tab — navigate any panes showing that content away
   const closeActiveTab = useCallback(() => {
-    const active = useTabsStore.getState().tabs.find((t) => t.id === useTabsStore.getState().activeTabId);
-    if (active) {
-      useTabsStore.getState().closeTab(active.id);
-      const newActive = useTabsStore.getState().getActive();
-      if (newActive) {
-        // Navigate active pane to the new tab's content
-        const { contentType, contentId } = pathToPane(newActive.path);
-        usePanesStore.getState().setPaneContent(usePanesStore.getState().activePaneId, contentType, contentId);
-      } else {
-        usePanesStore.getState().setPaneContent(usePanesStore.getState().activePaneId, "home");
-      }
-    }
+    const activeTab = useTabsStore.getState().tabs.find((t) => t.id === useTabsStore.getState().activeTabId);
+    if (!activeTab) return;
+
+    // Figure out what the tab was showing
+    const { contentType, contentId } = pathToPane(activeTab.path);
+
+    // Close the tab
+    useTabsStore.getState().closeTab(activeTab.id);
+
+    // Navigate all panes showing this content away (back or home)
+    usePanesStore.getState().navigatePanesAwayFrom(contentType, contentId);
   }, []);
 
   // Navigate active pane to a page-type content
@@ -131,10 +130,7 @@ function RootLayout() {
         <ApiProvider>
           <Sidebar onOpenCommandPalette={() => setCmdkOpen(true)} />
           <CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} />
-          <div
-            className="flex flex-1 flex-col overflow-hidden"
-            style={{ paddingLeft: Math.max(0, 76 - (collapsed ? 48 : sidebarWidth)) }}
-          >
+          <div className="flex flex-1 flex-col overflow-hidden">
             <TabBar />
             <main className="flex flex-1 overflow-hidden bg-bg-primary">
               <PaneRenderer node={root} />

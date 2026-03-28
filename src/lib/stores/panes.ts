@@ -303,9 +303,14 @@ export const usePanesStore = create<PanesState>()(
           for (const leaf of leaves) {
             if (leaf.contentType !== contentType || leaf.contentId !== contentId) continue;
 
-            // Try going back in history
-            if (leaf.history.length > 0) {
-              const history = [...leaf.history];
+            // Filter history: remove all entries matching the closed content
+            const cleanHistory = leaf.history.filter(
+              (e) => !(e.contentType === contentType && e.contentId === contentId),
+            );
+
+            // Find the last valid history entry
+            if (cleanHistory.length > 0) {
+              const history = [...cleanHistory];
               const prev = history.pop()!;
               const updated: PaneLeaf = {
                 ...leaf,
@@ -316,7 +321,7 @@ export const usePanesStore = create<PanesState>()(
               };
               newRoot = replaceNode(newRoot, leaf.id, updated);
             } else {
-              // No history — go home
+              // No valid history — go home
               const updated: PaneLeaf = {
                 ...leaf,
                 contentType: "home",

@@ -57,6 +57,8 @@ export function TabBar() {
   const activePaneId = usePanesStore((s) => s.activePaneId);
   const activeLeaf = usePanesStore((s) => s.getActiveLeaf());
   const splitPane = usePanesStore((s) => s.splitPane);
+  const closePane = usePanesStore((s) => s.closePane);
+  const paneCount = usePanesStore((s) => s.getPaneCount());
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function handleTabClick(tab: Tab) {
@@ -282,6 +284,17 @@ export function TabBar() {
             <Rows2 className="h-4 w-4" />
           </button>
         </Tooltip>
+        {paneCount > 1 && (
+          <Tooltip label="Close Pane" shortcut="⌘⇧W">
+            <button
+              onClick={() => closePane(activePaneId)}
+              className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-red-400"
+              aria-label="Close pane"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </Tooltip>
+        )}
       </div>
 
       {/* Activity button */}

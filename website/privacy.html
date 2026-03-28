@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Doction</title>
+  <meta name="description" content="Privacy Policy for Doction, a desktop workspace for Google Drive.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #09090b;
+      --bg-subtle: #18181b;
+      --border: #27272a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #3b82f6;
+      --radius: 12px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 1.25rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    nav ul { list-style: none; display: flex; gap: 28px; }
+    nav a { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
+    nav a:hover { color: var(--text); text-decoration: none; }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+    nav .container { max-width: 1080px; }
+    .content { padding: 60px 0 100px; }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .date { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 40px; }
+    h2 { font-size: 1.3rem; font-weight: 600; margin: 36px 0 12px; }
+    p, li { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px; }
+    ul { padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+    }
+    footer .container {
+      max-width: 1080px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    footer p { color: var(--text-muted); font-size: 0.85rem; }
+    footer ul { list-style: none; display: flex; gap: 24px; padding: 0; }
+    footer a { color: var(--text-muted); font-size: 0.85rem; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <a href="index.html" class="logo">Doction</a>
+      <ul>
+        <li><a href="https://github.com/metok/doction">GitHub</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="terms.html">Terms</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div class="container">
+      <h1>Privacy Policy</h1>
+      <p class="date">Effective date: March 28, 2026</p>
+
+      <p>Doction ("the App") is an open-source desktop application developed by Mehmet Emin Tok ("we", "us"). This policy describes how Doction handles your data.</p>
+
+      <h2>1. What Data We Access</h2>
+      <p>Doction connects to your Google account via OAuth 2.0 and requests the following read-only permissions:</p>
+      <ul>
+        <li><strong>drive.readonly</strong> — to list and read files and folders in your Google Drive</li>
+        <li><strong>documents.readonly</strong> — to display the content of Google Docs</li>
+        <li><strong>spreadsheets.readonly</strong> — to display the content of Google Sheets</li>
+        <li><strong>openid, email, profile</strong> — to identify your account for authentication</li>
+      </ul>
+      <p>Doction does <strong>not</strong> request write access. It cannot create, modify, or delete any files in your Google Drive.</p>
+
+      <h2>2. How Your Data Is Processed</h2>
+      <p>All data retrieved from Google APIs is processed <strong>locally on your device</strong>. Doction does not transmit your Google Drive content to any external server. The app communicates exclusively with Google's APIs to fetch the data you choose to view.</p>
+
+      <h2>3. Data Storage</h2>
+      <p>The following data is stored locally on your device:</p>
+      <ul>
+        <li><strong>OAuth tokens</strong> — stored securely in the Tauri application store to maintain your login session</li>
+        <li><strong>User preferences</strong> — sidebar state, theme selection, favorites, and recently viewed files are stored in your browser's localStorage</li>
+      </ul>
+      <p>No data is stored on remote servers operated by us. We do not operate any backend infrastructure.</p>
+
+      <h2>4. Third-Party Services</h2>
+      <p>Doction communicates with the following Google API services:</p>
+      <ul>
+        <li>Google OAuth 2.0 (accounts.google.com) — for authentication</li>
+        <li>Google Drive API (www.googleapis.com/drive) — for file listing and metadata</li>
+        <li>Google Docs API (docs.googleapis.com) — for document content</li>
+        <li>Google Sheets API (sheets.googleapis.com) — for spreadsheet content</li>
+      </ul>
+      <p>Your use of these services is governed by <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.</p>
+
+      <h2>5. Data Sharing</h2>
+      <p>We do <strong>not</strong> share, sell, or transfer your data to any third party. Since all processing happens on your device, we never have access to your data in the first place.</p>
+
+      <h2>6. Data Retention &amp; Deletion</h2>
+      <p>To remove all data stored by Doction:</p>
+      <ul>
+        <li>Log out within the app (this clears OAuth tokens)</li>
+        <li>Uninstall the application (this removes all local data)</li>
+        <li>Optionally, revoke Doction's access in your <a href="https://myaccount.google.com/permissions">Google Account permissions</a></li>
+      </ul>
+
+      <h2>7. Children's Privacy</h2>
+      <p>Doction is not directed at children under the age of 13. We do not knowingly collect data from children.</p>
+
+      <h2>8. Changes to This Policy</h2>
+      <p>We may update this policy from time to time. Changes will be posted on this page with an updated effective date. The source of this policy is maintained in our <a href="https://github.com/metok/doction">GitHub repository</a>.</p>
+
+      <h2>9. Contact</h2>
+      <p>If you have questions about this policy, please open an issue on our <a href="https://github.com/metok/doction/issues">GitHub repository</a> or contact us at the email listed in our GitHub profile.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Mehmet Emin Tok. Open source under the MIT License.</p>
+      <ul>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Service</a></li>
+        <li><a href="https://github.com/metok/doction">Source Code</a></li>
+      </ul>
+    </div>
+  </footer>
+
+</body>
+</html>

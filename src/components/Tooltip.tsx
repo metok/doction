@@ -36,7 +36,7 @@ export function Tooltip({ label, shortcut, children, side = "bottom", delay = 40
         <div
           role="tooltip"
           className={[
-            "pointer-events-none absolute left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-md bg-neutral-800 px-2 py-1 text-xs text-neutral-100 shadow-md",
+            "pointer-events-none absolute left-1/2 z-[9999] -translate-x-1/2 whitespace-nowrap rounded-md bg-neutral-800 px-2 py-1 text-xs text-neutral-100 shadow-md",
             side === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5",
           ].join(" ")}
         >

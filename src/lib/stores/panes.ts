@@ -94,6 +94,14 @@ function countLeaves(node: PaneNode): number {
 
 const MAX_HISTORY = 50;
 
+/** Patch old persisted leaf nodes that lack history/forward fields. */
+function migrateNode(node: PaneNode): PaneNode {
+  if (node.kind === "leaf") {
+    return { ...node, history: node.history ?? [], forward: node.forward ?? [] };
+  }
+  return { ...node, children: [migrateNode(node.children[0]), migrateNode(node.children[1])] };
+}
+
 // ── Store ─────────────────────────────────────────────────────────────────
 
 interface PanesState {
@@ -278,6 +286,16 @@ export const usePanesStore = create<PanesState>()(
         return !!node && node.kind === "leaf" && node.forward.length > 0;
       },
     }),
-    { name: "doction-panes" },
+    {
+      name: "doction-panes",
+      version: 1,
+      migrate: (persisted: unknown) => {
+        const state = persisted as Record<string, unknown>;
+        if (state && typeof state === "object" && "root" in state) {
+          state.root = migrateNode(state.root as PaneNode);
+        }
+        return state as unknown as PanesState;
+      },
+    },
   ),
 );

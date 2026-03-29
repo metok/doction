@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { usePanesStore, type PaneLeaf } from "@/lib/stores/panes";
 import { Tooltip } from "@/components/Tooltip";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { DocPageContent } from "@/components/content/DocPageContent";
 import { SheetPageContent } from "@/components/content/SheetPageContent";
 import { FilePageContent } from "@/components/content/FilePageContent";
@@ -63,7 +64,9 @@ export function PaneLeafView({ pane }: { pane: PaneLeaf }) {
           </Tooltip>
         </div>
       )}
-      <PaneContent pane={pane} />
+      <ErrorBoundary key={pane.contentType + (pane.contentId ?? "")}>
+        <PaneContent pane={pane} />
+      </ErrorBoundary>
     </div>
   );
 }

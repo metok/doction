@@ -61,6 +61,31 @@ export class ApiClient {
     }
   }
 
+  async patch<T = unknown>(url: string, body: unknown): Promise<T> {
+    await this.acquireSlot();
+    try {
+      const token = await this.getToken();
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        const message =
+          (errorBody as { error?: { message?: string } })?.error?.message ||
+          `HTTP ${response.status}`;
+        throw new ApiError(message, response.status, errorBody);
+      }
+      return response.json() as Promise<T>;
+    } finally {
+      this.releaseSlot();
+    }
+  }
+
   async getBlob(url: string): Promise<Blob> {
     await this.acquireSlot();
     try {

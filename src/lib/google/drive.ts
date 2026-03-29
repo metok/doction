@@ -48,6 +48,36 @@ export function createDriveApi(client: ApiClient) {
     return client.get<DriveFileList>(`${BASE_URL}/files?${params}`);
   }
 
+  async function searchFilesAdvanced(options: {
+    query: string;
+    mimeType?: string;
+    modifiedAfter?: string;
+    driveId?: string;
+  }): Promise<DriveFileList> {
+    const conditions: string[] = [];
+    if (options.query)
+      conditions.push(
+        `fullText contains '${options.query.replace(/'/g, "\\'")}'`,
+      );
+    conditions.push("trashed = false");
+    if (options.mimeType)
+      conditions.push(`mimeType = '${options.mimeType}'`);
+    if (options.modifiedAfter)
+      conditions.push(`modifiedTime > '${options.modifiedAfter}'`);
+    const params = new URLSearchParams({
+      q: conditions.join(" and "),
+      fields: `nextPageToken,files(${FILE_FIELDS})`,
+      pageSize: "50",
+      supportsAllDrives: "true",
+      includeItemsFromAllDrives: "true",
+    });
+    if (options.driveId) {
+      params.set("corpora", "drive");
+      params.set("driveId", options.driveId);
+    }
+    return client.get<DriveFileList>(`${BASE_URL}/files?${params}`);
+  }
+
   async function listSharedDrives(): Promise<SharedDriveList> {
     return client.get<SharedDriveList>(`${BASE_URL}/drives?pageSize=100`);
   }
@@ -160,6 +190,11 @@ export function createDriveApi(client: ApiClient) {
     }>(`${BASE_URL}/files/${fileId}/revisions?${params}`);
   }
 
+  async function restoreFile(fileId: string) {
+    const params = new URLSearchParams({ supportsAllDrives: "true" });
+    return client.patch(`${BASE_URL}/files/${fileId}?${params}`, { trashed: false });
+  }
+
   function getDownloadUrl(fileId: string): string {
     return `${BASE_URL}/files/${fileId}?alt=media`;
   }
@@ -176,6 +211,7 @@ export function createDriveApi(client: ApiClient) {
     listFiles,
     getFile,
     searchFiles,
+    searchFilesAdvanced,
     getStarredFiles,
     getTrashedFiles,
     recentlyModified,
@@ -187,5 +223,6 @@ export function createDriveApi(client: ApiClient) {
     getStartPageToken,
     listChanges,
     listRevisions,
+    restoreFile,
   };
 }

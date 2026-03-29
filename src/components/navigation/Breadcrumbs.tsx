@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Star, MoreHorizontal, ExternalLink, Link2, Info } from "lucide-react";
+import { ChevronRight, Star, MoreHorizontal, ExternalLink, Link2, Info, History } from "lucide-react";
 import type { DriveFile } from "@/lib/google/types";
 import { useFavoritesStore } from "@/lib/stores/favorites";
+import { usePanelsStore } from "@/lib/stores/panels";
 
 interface BreadcrumbsProps {
   path?: DriveFile[];
@@ -34,6 +35,7 @@ function formatDate(iso: string | undefined): string {
 export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
   const isFavorite = useFavoritesStore((s) => file ? s.isFavorite(file.id) : false);
   const toggleFavorite = useFavoritesStore((s) => s.toggle);
+  const openVersionHistory = usePanelsStore((s) => s.openVersionHistory);
   const [menuOpen, setMenuOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
@@ -182,6 +184,17 @@ export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
               >
                 <Info className="h-3.5 w-3.5 shrink-0" />
                 File info
+              </button>
+              <button
+                onClick={() => {
+                  if (file) openVersionHistory(file.id);
+                  setMenuOpen(false);
+                }}
+                disabled={!file}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <History className="h-3.5 w-3.5 shrink-0" />
+                Version history
               </button>
             </div>
           )}

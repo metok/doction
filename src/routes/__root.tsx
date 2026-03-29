@@ -8,6 +8,7 @@ import { CommandPalette } from "@/components/navigation/CommandPalette";
 import { ShortcutsModal } from "@/components/dialogs/ShortcutsModal";
 import { TabBar } from "@/components/navigation/TabBar";
 import { ActivityPanel } from "@/components/panels/ActivityPanel";
+import { VersionHistoryPanel } from "@/components/panels/VersionHistoryPanel";
 import { PaneRenderer } from "@/components/panes/PaneRenderer";
 import { usePreferencesStore } from "@/lib/stores/preferences";
 
@@ -139,6 +140,7 @@ function RootLayout() {
             </main>
           </div>
           <ActivityPanel />
+          <VersionHistoryPanel />
         </ApiProvider>
       </div>
     </AuthGuard>

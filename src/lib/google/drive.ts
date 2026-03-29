@@ -144,6 +144,22 @@ export function createDriveApi(client: ApiClient) {
     return client.get(`${DRIVE_API}/changes?${params}`);
   }
 
+  async function listRevisions(fileId: string) {
+    const params = new URLSearchParams({
+      fields:
+        "revisions(id,modifiedTime,lastModifyingUser(displayName,photoLink),size)",
+      pageSize: "50",
+    });
+    return client.get<{
+      revisions: Array<{
+        id: string;
+        modifiedTime: string;
+        lastModifyingUser?: { displayName: string; photoLink?: string };
+        size?: string;
+      }>;
+    }>(`${BASE_URL}/files/${fileId}/revisions?${params}`);
+  }
+
   function getDownloadUrl(fileId: string): string {
     return `${BASE_URL}/files/${fileId}?alt=media`;
   }
@@ -170,5 +186,6 @@ export function createDriveApi(client: ApiClient) {
     getUserInfo,
     getStartPageToken,
     listChanges,
+    listRevisions,
   };
 }

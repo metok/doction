@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
 import { useDriveFiles, useFileMetadata, useFilePath } from "@/lib/hooks/use-drive-files";
+import { FolderSkeleton } from "@/components/content/FolderSkeleton";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { FolderView } from "@/components/content/FolderView";
 import { isFolder } from "@/lib/google/types";
@@ -35,11 +35,7 @@ export function FolderPageContent({ folderId }: { folderId: string }) {
       <Breadcrumbs path={pathData} isLoading={pathLoading} file={folderMeta} />
 
       <div className="flex-1 overflow-y-auto p-6">
-        {filesLoading && (
-          <div className="flex flex-1 items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-text-muted" />
-          </div>
-        )}
+        {filesLoading && <FolderSkeleton />}
 
         {filesError && (
           <div className="rounded-lg border border-border bg-bg-secondary p-4 text-sm text-amber">

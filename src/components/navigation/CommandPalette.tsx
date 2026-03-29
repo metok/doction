@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { Command } from "cmdk";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, Folder, FileText, Sheet, Image, File, Users } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { useSearch } from "@/lib/hooks/use-search";
+import type { SearchFilters } from "@/lib/hooks/use-search";
 import { useSharedDrives } from "@/lib/hooks/use-drive-files";
 import { useRecentStore } from "@/lib/stores/recent";
 import {
@@ -12,9 +13,51 @@ import {
   isSpreadsheet,
   isImage,
   isPdf,
+  MIME_TYPES,
 } from "@/lib/google/types";
 import type { DriveFile } from "@/lib/google/types";
 import { getActions, filterActions } from "@/lib/actions";
+
+type DateFilterValue = "today" | "week" | "month";
+
+const TYPE_CHIPS = [
+  { label: "Documents", mimeType: MIME_TYPES.DOCUMENT },
+  { label: "Spreadsheets", mimeType: MIME_TYPES.SPREADSHEET },
+  { label: "Folders", mimeType: MIME_TYPES.FOLDER },
+  { label: "Images", mimeType: "image/" },
+] as const;
+
+const DATE_CHIPS: { label: string; value: DateFilterValue }[] = [
+  { label: "Today", value: "today" },
+  { label: "This Week", value: "week" },
+  { label: "This Month", value: "month" },
+];
+
+function dateFilterToISO(value: DateFilterValue): string {
+  const now = new Date();
+  switch (value) {
+    case "today": {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return d.toISOString();
+    }
+    case "week": {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 7);
+      return d.toISOString();
+    }
+    case "month": {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 30);
+      return d.toISOString();
+    }
+  }
+}
+
+const chipBase =
+  "cursor-pointer select-none rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors";
+const chipInactive =
+  "border-border text-text-muted hover:border-text-muted hover:text-text-secondary";
+const chipActive = "border-accent bg-accent/15 text-accent";
 
 const groupHeadingClass = "[&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-text-muted";
 const itemClass = "flex cursor-pointer items-center gap-3 px-4 py-2 text-sm text-text-secondary transition-colors aria-selected:bg-bg-tertiary aria-selected:text-text-primary";
@@ -43,11 +86,22 @@ function getFilePath(file: DriveFile): string {
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [dateFilter, setDateFilter] = useState<DateFilterValue | null>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const router = useRouter();
   const { addFile } = useRecentStore();
   const recentFiles = useRecentStore((s) => s.files).slice(0, 5);
-  const { data: searchData, isFetching: isSearching } = useSearch(debouncedQuery);
+
+  const searchFilters = useMemo<SearchFilters | undefined>(() => {
+    if (!typeFilter && !dateFilter) return undefined;
+    return {
+      mimeType: typeFilter ?? undefined,
+      modifiedAfter: dateFilter ? dateFilterToISO(dateFilter) : undefined,
+    };
+  }, [typeFilter, dateFilter]);
+
+  const { data: searchData, isFetching: isSearching } = useSearch(debouncedQuery, searchFilters);
   const { data: sharedDrivesData } = useSharedDrives();
   const searchResults = searchData?.files ?? [];
   const isTyping = query !== debouncedQuery;
@@ -85,6 +139,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       }
       onOpenChange(false);
       setQuery("");
+      setTypeFilter(null);
+      setDateFilter(null);
     },
     [addFile, router, onOpenChange],
   );
@@ -104,6 +160,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             onClick={() => {
               onOpenChange(false);
               setQuery("");
+              setTypeFilter(null);
+              setDateFilter(null);
             }}
           />
 
@@ -124,6 +182,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   e.preventDefault();
                   onOpenChange(false);
                   setQuery("");
+                  setTypeFilter(null);
+                  setDateFilter(null);
                 }
               }}
             >
@@ -143,6 +203,43 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 />
               </div>
 
+              {/* Filters */}
+              {query.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
+                  {TYPE_CHIPS.map((chip) => (
+                    <button
+                      key={chip.mimeType}
+                      type="button"
+                      className={`${chipBase} ${typeFilter === chip.mimeType ? chipActive : chipInactive}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() =>
+                        setTypeFilter((prev) =>
+                          prev === chip.mimeType ? null : chip.mimeType,
+                        )
+                      }
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                  <span className="mx-1 h-4 w-px bg-border" />
+                  {DATE_CHIPS.map((chip) => (
+                    <button
+                      key={chip.value}
+                      type="button"
+                      className={`${chipBase} ${dateFilter === chip.value ? chipActive : chipInactive}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() =>
+                        setDateFilter((prev) =>
+                          prev === chip.value ? null : chip.value,
+                        )
+                      }
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Results */}
               <Command.List className="max-h-[360px] overflow-y-auto py-2">
                 {query.length === 0 ? (
@@ -155,7 +252,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                           <Command.Item
                             key={action.id}
                             value={action.id}
-                            onSelect={() => { action.run(); onOpenChange(false); setQuery(""); }}
+                            onSelect={() => { action.run(); onOpenChange(false); setQuery(""); setTypeFilter(null); setDateFilter(null); }}
                             className={itemClass}
                           >
                             <Icon className="h-4 w-4 shrink-0 text-text-muted" />
@@ -204,7 +301,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                             <Command.Item
                               key={action.id}
                               value={action.id}
-                              onSelect={() => { action.run(); onOpenChange(false); setQuery(""); }}
+                              onSelect={() => { action.run(); onOpenChange(false); setQuery(""); setTypeFilter(null); setDateFilter(null); }}
                               className={itemClass}
                             >
                               <Icon className="h-4 w-4 shrink-0 text-text-muted" />
@@ -233,6 +330,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                               router.navigate({ to: "/folder/$folderId", params: { folderId: drive.id } });
                               onOpenChange(false);
                               setQuery("");
+                              setTypeFilter(null);
+                              setDateFilter(null);
                             }}
                             className={itemClass}
                           >

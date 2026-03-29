@@ -75,6 +75,24 @@ function BlockRenderer({ block }: BlockRendererProps) {
     );
   }
 
+  if (block.type === "image") {
+    return (
+      <figure className="my-4">
+        <img
+          src={block.imageUrl}
+          alt={block.alt}
+          className="max-w-full rounded-lg"
+          loading="lazy"
+        />
+        {block.alt && (
+          <figcaption className="mt-1 text-center text-xs text-text-muted">
+            {block.alt}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
   if (block.type === "hr") {
     return (
       <div className="my-10 flex items-center justify-center gap-2">

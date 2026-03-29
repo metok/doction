@@ -25,6 +25,9 @@ export interface DocBlock {
   spans?: DocSpan[];
   rows?: DocSpan[][][]; // table rows -> cells -> spans
   imageUrl?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
 }
 
 function parseTextStyle(style?: TextStyle): Partial<DocSpan> {
@@ -76,6 +79,17 @@ function parseStructuralElement(se: StructuralElement): DocBlock[] {
     const hasHr = elements.some((el) => el.horizontalRule !== undefined);
     if (hasHr) {
       return [{ type: "hr" }];
+    }
+
+    // Check for inline images
+    const inlineImages = elements
+      .filter((el) => el.inlineObjectElement?.inlineObjectId)
+      .map((el) => ({
+        type: "image" as const,
+        imageUrl: `__inline_object__:${el.inlineObjectElement!.inlineObjectId!}`,
+      }));
+    if (inlineImages.length > 0) {
+      return inlineImages;
     }
 
     const spans = parseElements(elements);
@@ -131,5 +145,36 @@ export function parseDocContent(doc: GoogleDoc): DocBlock[] {
     blocks.push(...parseStructuralElement(se));
   }
 
-  return blocks;
+  // Resolve inline object image URLs
+  const inlineObjects = doc.inlineObjects as
+    | Record<string, { inlineObjectProperties?: { embeddedObject?: {
+        imageProperties?: { contentUri?: string };
+        title?: string;
+        description?: string;
+        size?: { width?: { magnitude?: number }; height?: { magnitude?: number } };
+      } } }>
+    | undefined;
+
+  if (inlineObjects) {
+    for (const block of blocks) {
+      if (block.type === "image" && block.imageUrl?.startsWith("__inline_object__:")) {
+        const objectId = block.imageUrl.slice("__inline_object__:".length);
+        const obj = inlineObjects[objectId];
+        const embedded = obj?.inlineObjectProperties?.embeddedObject;
+        if (embedded?.imageProperties?.contentUri) {
+          block.imageUrl = embedded.imageProperties.contentUri;
+          block.alt = embedded.title || embedded.description || undefined;
+          block.width = embedded.size?.width?.magnitude;
+          block.height = embedded.size?.height?.magnitude;
+        } else {
+          block.imageUrl = undefined;
+        }
+      }
+    }
+  }
+
+  // Filter out image blocks where the URL couldn't be resolved
+  return blocks.filter(
+    (block) => block.type !== "image" || !!block.imageUrl,
+  );
 }

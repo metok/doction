@@ -1,4 +1,6 @@
-import { LayoutGrid, List, Folder, FileText, Sheet, Image, File, FileArchive, Presentation } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { LayoutGrid, List, Loader2, Folder, FileText, Sheet, Image, File, FileArchive, Presentation, ExternalLink, Star, EyeOff, Link, Trash2, FolderOpen } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { usePreferencesStore } from "@/lib/stores/preferences";
 import { useDriveFiles } from "@/lib/hooks/use-drive-files";
 import {
@@ -11,10 +13,19 @@ import {
 import type { DriveFile } from "@/lib/google/types";
 import { SortableFileList } from "@/components/dnd/SortableFileList";
 import { useFileNavigation } from "@/lib/hooks/use-file-navigation";
+import { useFavoritesStore } from "@/lib/stores/favorites";
+import { useHiddenItemsStore } from "@/lib/stores/hidden-items";
+import { useApi } from "@/lib/api-context";
+import { trashFile } from "@/lib/google/mutations";
+import { ContextMenu } from "@/components/ui/ContextMenu";
+import type { ContextMenuItem } from "@/components/ui/ContextMenu";
 
 interface FolderViewProps {
   files: DriveFile[];
   folderId?: string;
+  hasNextPage?: boolean;
+  fetchNextPage?: () => void;
+  isFetchingNextPage?: boolean;
 }
 
 function formatDate(dateStr?: string): string {
@@ -111,7 +122,7 @@ function SmallFileIcon({ mimeType }: { mimeType: string }) {
 /** Mini preview grid showing first few items inside a folder */
 function FolderPreview({ folderId }: { folderId: string }) {
   const { data, isLoading } = useDriveFiles(folderId, true);
-  const children = data?.files?.slice(0, 4) ?? [];
+  const children = (data?.pages.flatMap((p) => p.files ?? []) ?? []).slice(0, 4);
 
   if (isLoading) {
     return (
@@ -155,9 +166,85 @@ function FolderPreview({ folderId }: { folderId: string }) {
   );
 }
 
-export function FolderView({ files, folderId = "root" }: FolderViewProps) {
+export function FolderView({ files, folderId = "root", hasNextPage, fetchNextPage, isFetchingNextPage }: FolderViewProps) {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasNextPage || !fetchNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, fetchNextPage]);
+
   const { viewMode, setViewMode } = usePreferencesStore();
   const navigateTo = useFileNavigation();
+  const { client } = useApi();
+  const queryClient = useQueryClient();
+  const favoritesStore = useFavoritesStore();
+  const hiddenItemsStore = useHiddenItemsStore();
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; file: DriveFile } | null>(null);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent, file: DriveFile) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, file });
+  }, []);
+
+  const getContextMenuItems = useCallback(
+    (file: DriveFile): ContextMenuItem[] => {
+      const isFav = favoritesStore.isFavorite(file.id);
+      return [
+        {
+          label: "Open",
+          icon: FolderOpen,
+          onClick: () => navigateTo(file),
+        },
+        {
+          label: isFav ? "Unfavorite" : "Favorite",
+          icon: Star,
+          onClick: () => favoritesStore.toggle(file),
+        },
+        {
+          label: "Hide",
+          icon: EyeOff,
+          onClick: () => hiddenItemsStore.toggle(file.id),
+        },
+        {
+          label: "Open in Drive",
+          icon: ExternalLink,
+          onClick: () => {
+            if (file.webViewLink) window.open(file.webViewLink, "_blank");
+          },
+        },
+        {
+          label: "Copy link",
+          icon: Link,
+          onClick: () => {
+            if (file.webViewLink) navigator.clipboard.writeText(file.webViewLink);
+          },
+        },
+        {
+          label: "Delete",
+          icon: Trash2,
+          danger: true,
+          onClick: async () => {
+            await trashFile(client, file.id);
+            queryClient.invalidateQueries({ queryKey: ["drive"] });
+          },
+        },
+      ];
+    },
+    [favoritesStore, hiddenItemsStore, navigateTo, client, queryClient],
+  );
 
   return (
     <div className="flex flex-col gap-6 px-8 pb-10">
@@ -206,6 +293,7 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                   {...attributes}
                   {...listeners}
                   onClick={(e) => navigateTo(file, e)}
+                  onContextMenu={(e) => handleContextMenu(e, file)}
                   className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border/60 bg-bg-secondary text-left transition-all duration-200 hover:border-border hover:bg-bg-tertiary/50 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5"
                 >
                   {/* Preview area */}
@@ -276,6 +364,7 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
                 {...attributes}
                 {...listeners}
                 onClick={(e) => navigateTo(file, e)}
+                onContextMenu={(e) => handleContextMenu(e, file)}
                 className="flex w-full cursor-pointer items-center gap-3 border-b border-border/30 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-bg-tertiary/40"
               >
                 <SmallFileIcon mimeType={file.mimeType} />
@@ -297,6 +386,22 @@ export function FolderView({ files, folderId = "root" }: FolderViewProps) {
             )}
           />
         </div>
+      )}
+
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-1" />
+      {isFetchingNextPage && (
+        <div className="flex justify-center py-4">
+          <Loader2 className="h-5 w-5 animate-spin text-text-muted" />
+        </div>
+      )}
+
+      {contextMenu && (
+        <ContextMenu
+          items={getContextMenuItems(contextMenu.file)}
+          position={{ x: contextMenu.x, y: contextMenu.y }}
+          onClose={() => setContextMenu(null)}
+        />
       )}
     </div>
   );

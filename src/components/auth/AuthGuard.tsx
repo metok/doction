@@ -5,9 +5,10 @@ import { LoginScreen } from "./LoginScreen";
 
 interface AuthGuardProps {
   children: React.ReactNode;
+  fallbackClass?: string;
 }
 
-export function AuthGuard({ children }: AuthGuardProps) {
+export function AuthGuard({ children, fallbackClass = "" }: AuthGuardProps) {
   const { authenticated, isLoading, refreshAuth } = useAuth();
 
   // Listen for auth-success event from Rust backend (localhost OAuth callback)
@@ -27,14 +28,18 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-950">
+      <div className={`flex h-screen items-center justify-center bg-[#09090f] ${fallbackClass}`}>
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-700 border-t-indigo-500" />
       </div>
     );
   }
 
   if (!authenticated) {
-    return <LoginScreen />;
+    return (
+      <div className={fallbackClass}>
+        <LoginScreen />
+      </div>
+    );
   }
 
   return <>{children}</>;

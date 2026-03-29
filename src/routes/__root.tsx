@@ -119,14 +119,12 @@ function RootLayout() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const themeClass = theme === "light" ? "light" :
+    theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "";
+
   return (
-    <div
-      className={`flex h-screen overflow-hidden rounded-lg bg-bg-primary ${
-        theme === "light" ? "light" :
-        theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : ""
-      }`}
-    >
-      <AuthGuard>
+    <AuthGuard fallbackClass={themeClass}>
+      <div className={`flex h-screen overflow-hidden rounded-lg bg-bg-primary ${themeClass}`}>
         <ApiProvider>
           <Sidebar onOpenCommandPalette={() => setCmdkOpen(true)} />
           <CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} />
@@ -138,8 +136,8 @@ function RootLayout() {
           </div>
           <ActivityPanel />
         </ApiProvider>
-      </AuthGuard>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }
 

@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
-import { ChevronRight, Star, MoreHorizontal, ExternalLink, Link2, Info } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { ChevronRight, ChevronDown, Star, MoreHorizontal, ExternalLink, Link2, Info } from "lucide-react";
 import type { DriveFile } from "@/lib/google/types";
 import { useFavoritesStore } from "@/lib/stores/favorites";
+import { BreadcrumbDropdown } from "./BreadcrumbDropdown";
 
 interface BreadcrumbsProps {
   path?: DriveFile[];
@@ -37,6 +37,9 @@ export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
+  const closeDropdown = useCallback(() => setOpenDropdownId(null), []);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
@@ -99,6 +102,7 @@ export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
         {segments.map((segment, index) => {
           const isFirst = index === 0;
           const isLast = index === segments.length - 1;
+          const parentId = index === 0 ? "root" : segments[index - 1].id;
           return (
             <span key={segment.id} className="flex items-center gap-1">
               {!isFirst && (
@@ -109,13 +113,26 @@ export function Breadcrumbs({ path, isLoading, file }: BreadcrumbsProps) {
                   {segment.name}
                 </span>
               ) : (
-                <Link
-                  to="/folder/$folderId"
-                  params={{ folderId: segment.id }}
-                  className="text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  {segment.name}
-                </Link>
+                <span className="relative">
+                  <button
+                    onClick={() =>
+                      setOpenDropdownId((prev) =>
+                        prev === segment.id ? null : segment.id,
+                      )
+                    }
+                    className="flex items-center gap-0.5 text-text-secondary transition-colors hover:text-text-primary"
+                  >
+                    {segment.name}
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                  {openDropdownId === segment.id && (
+                    <BreadcrumbDropdown
+                      parentId={parentId}
+                      segmentId={segment.id}
+                      onClose={closeDropdown}
+                    />
+                  )}
+                </span>
               )}
             </span>
           );

@@ -168,7 +168,7 @@ export function HomePageContent() {
   const { data: sharedDrivesData, isLoading: drivesLoading } = useSharedDrives();
   const { data: recentlyModifiedData, isLoading: modifiedLoading } = useRecentlyModified();
 
-  const rootFiles = (rootData?.files ?? []).slice(0, 8);
+  const rootFiles = (rootData?.pages.flatMap((p) => p.files ?? []) ?? []).slice(0, 8);
   const sharedDrives = sharedDrivesData?.drives ?? [];
   const modifiedFiles = recentlyModifiedData?.files ?? [];
 

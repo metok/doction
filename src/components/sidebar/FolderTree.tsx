@@ -60,7 +60,7 @@ function SharedDriveNode({ drive }: { drive: SharedDrive }) {
 
   if (isHidden && !showHidden) return null;
 
-  const children = expanded ? (data?.files ?? []) : [];
+  const children = expanded ? (data?.pages.flatMap((p) => p.files ?? []) ?? []) : [];
 
   return (
     <div>
@@ -168,7 +168,7 @@ export function SharedDrivesTree() {
 /** My Drive section — rendered in Sidebar fixed area */
 export function MyDriveTree() {
   const { data, isLoading } = useDriveFiles("root");
-  const files = data?.files ?? [];
+  const files = data?.pages.flatMap((p) => p.files ?? []) ?? [];
   const folders = files.filter((f) => isFolder(f.mimeType));
   const nonFolders = files.filter((f) => !isFolder(f.mimeType));
   const sorted = [...folders, ...nonFolders];

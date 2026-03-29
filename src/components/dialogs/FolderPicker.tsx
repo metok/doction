@@ -34,7 +34,7 @@ export function FolderPicker({
   const favoriteFiles = useFavoritesStore((s) => s.files);
 
   const sharedDrives = sharedDrivesData?.drives ?? [];
-  const browseFiles = browseData?.files?.filter((f) => isFolder(f.mimeType)) ?? [];
+  const browseFiles = (browseData?.pages.flatMap((p) => p.files ?? []) ?? []).filter((f) => isFolder(f.mimeType));
 
   // Recent folders (deduplicated)
   const recentFolders = useMemo(() => {

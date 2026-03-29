@@ -99,7 +99,7 @@ export function FolderNode({ file, depth = 0 }: FolderNodeProps) {
   // Don't render if hidden (unless showHidden is on) — AFTER all hooks
   if (isHidden && !showHidden) return null;
 
-  const children = data?.files ?? [];
+  const children = data?.pages.flatMap((p) => p.files ?? []) ?? [];
   const folders = children.filter((f) => isFolderType(f.mimeType));
   const files = children.filter((f) => !isFolderType(f.mimeType));
   const sorted = [...folders, ...files];

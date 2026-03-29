@@ -24,7 +24,7 @@ export function BreadcrumbDropdown({ parentId, segmentId, onClose }: BreadcrumbD
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
 
-  const folders = (data?.files ?? []).filter((f) => isFolder(f.mimeType));
+  const folders = (data?.pages.flatMap((p) => p.files ?? []) ?? []).filter((f) => isFolder(f.mimeType));
 
   return (
     <div

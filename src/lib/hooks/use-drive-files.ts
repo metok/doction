@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useApi } from "../api-context";
 
 const STALE_TIME = 2 * 60 * 1000; // 2 minutes
@@ -6,9 +6,11 @@ const STALE_TIME = 2 * 60 * 1000; // 2 minutes
 export function useDriveFiles(folderId: string = "root", enabled = true, driveId?: string) {
   const { drive } = useApi();
 
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["drive", "files", folderId, driveId],
-    queryFn: () => drive.listFiles(folderId, undefined, driveId),
+    queryFn: ({ pageParam }) => drive.listFiles(folderId, pageParam, driveId),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextPageToken ?? undefined,
     enabled,
     staleTime: STALE_TIME,
   });

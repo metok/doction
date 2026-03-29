@@ -7,8 +7,14 @@ import { isFolder } from "@/lib/google/types";
 import { useTabsStore } from "@/lib/stores/tabs";
 
 export function FolderPageContent({ folderId }: { folderId: string }) {
-  const { data: filesData, isLoading: filesLoading, isError: filesError } =
-    useDriveFiles(folderId);
+  const {
+    data: filesData,
+    isLoading: filesLoading,
+    isError: filesError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useDriveFiles(folderId);
   const { data: pathData, isLoading: pathLoading } = useFilePath(folderId);
   const { data: folderMeta } = useFileMetadata(folderId);
   const { updateTab, tabs } = useTabsStore();
@@ -25,7 +31,7 @@ export function FolderPageContent({ folderId }: { folderId: string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathData, folderMeta?.name]);
 
-  const files = filesData?.files ?? [];
+  const files = filesData?.pages.flatMap((p) => p.files ?? []) ?? [];
   const folders = files.filter((f) => isFolder(f.mimeType));
   const nonFolders = files.filter((f) => !isFolder(f.mimeType));
   const sorted = [...folders, ...nonFolders];
@@ -43,7 +49,15 @@ export function FolderPageContent({ folderId }: { folderId: string }) {
           </div>
         )}
 
-        {!filesLoading && !filesError && <FolderView files={sorted} folderId={folderId} />}
+        {!filesLoading && !filesError && (
+          <FolderView
+            files={sorted}
+            folderId={folderId}
+            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+          />
+        )}
       </div>
     </div>
   );

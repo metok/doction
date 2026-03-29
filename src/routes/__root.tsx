@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { createRootRoute, useRouter } from "@tanstack/react-router";
-import { Home, Clock, Search, Trash2, Star, Columns2, Rows2, X } from "lucide-react";
+import { Home, Clock, Search, Trash2, Star, Columns2, Rows2, X, Keyboard } from "lucide-react";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { ApiProvider } from "@/lib/api-context";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { CommandPalette } from "@/components/navigation/CommandPalette";
+import { ShortcutsModal } from "@/components/dialogs/ShortcutsModal";
 import { TabBar } from "@/components/navigation/TabBar";
 import { ActivityPanel } from "@/components/panels/ActivityPanel";
 import { PaneRenderer } from "@/components/panes/PaneRenderer";
@@ -35,6 +36,7 @@ function RootLayout() {
   const { theme } = usePreferencesStore();
 
   const [cmdkOpen, setCmdkOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const router = useRouter();
   const root = usePanesStore((s) => s.root);
 
@@ -70,6 +72,7 @@ function RootLayout() {
       { id: "pane:split-right", label: "Split Right", icon: Columns2, shortcut: "⌘\\", keys: { mod: true, key: "\\" }, group: "view", run: () => usePanesStore.getState().splitPane(usePanesStore.getState().activePaneId, "horizontal") },
       { id: "pane:split-down", label: "Split Down", icon: Rows2, shortcut: "⌘⇧\\", keys: { mod: true, shift: true, key: "\\" }, group: "view", run: () => usePanesStore.getState().splitPane(usePanesStore.getState().activePaneId, "vertical") },
       { id: "pane:close", label: "Close Pane", icon: X, shortcut: "⌘⇧W", keys: { mod: true, shift: true, key: "w" }, group: "view", run: () => usePanesStore.getState().closePane(usePanesStore.getState().activePaneId) },
+      { id: "help:shortcuts", label: "Keyboard Shortcuts", icon: Keyboard, shortcut: "⌘/", keys: { mod: true, key: "/" }, group: "navigation", run: () => setShortcutsOpen(true) },
     ];
     registerActions(actions);
     return () => unregisterActions(actions.map((a) => a.id));
@@ -128,6 +131,7 @@ function RootLayout() {
         <ApiProvider>
           <Sidebar onOpenCommandPalette={() => setCmdkOpen(true)} />
           <CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} />
+          <ShortcutsModal open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
           <div className="flex flex-1 flex-col overflow-hidden">
             <TabBar />
             <main className="flex flex-1 overflow-hidden bg-bg-primary">

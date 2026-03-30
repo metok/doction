@@ -1,6 +1,6 @@
 [package]
 name = "doction"
-version = "0.1.0"
+version = "0.2.0"
 description = "Doction — a Notion-like desktop app backed by Google Drive"
 authors = ["Doction Contributors"]
 license = "MIT"

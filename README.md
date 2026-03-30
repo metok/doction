@@ -33,6 +33,12 @@ Doction gives you the Notion experience on top of your own Google Drive. No migr
 
 Install. Sign in with Google. Done. No config, no setup, no nonsense.
 
+> **macOS:** Apple may block the app because it's not notarized yet. To fix this, open Terminal and run:
+> ```
+> xattr -cr /Applications/Doction.app
+> ```
+> Then open the app normally. You only need to do this once.
+
 ## What can it do?
 
 ### Your Drive, but beautiful

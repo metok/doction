@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef } from "react";
-import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Star, Eye, EyeOff } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Home, FileText, Sheet, Trash2, Search, Star, Eye, EyeOff, GripVertical } from "lucide-react";
 import { useRouterState } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
-import { useSidebarStore, MIN_WIDTH } from "@/lib/stores/sidebar";
+import { useSidebarStore, MIN_WIDTH, MAX_WIDTH } from "@/lib/stores/sidebar";
 import { usePanesStore, type PaneContentType } from "@/lib/stores/panes";
 import { SearchTrigger } from "./SearchTrigger";
 import { QuickNav } from "./QuickNav";
@@ -26,16 +26,13 @@ function ResizeHandle() {
 
       const onMouseMove = (e: MouseEvent) => {
         if (!dragging.current) return;
-        if (e.clientX < MIN_WIDTH) {
+        const x = Math.min(e.clientX, MAX_WIDTH);
+        if (x < MIN_WIDTH) {
           setCollapsed(true);
-          dragging.current = false;
-          document.body.style.cursor = "";
-          document.body.style.userSelect = "";
-          document.removeEventListener("mousemove", onMouseMove);
-          document.removeEventListener("mouseup", onMouseUp);
-          return;
+        } else {
+          setCollapsed(false);
+          setSidebarWidth(x);
         }
-        setSidebarWidth(e.clientX);
       };
 
       const onMouseUp = () => {
@@ -55,8 +52,13 @@ function ResizeHandle() {
   return (
     <div
       onMouseDown={onMouseDown}
-      className="absolute top-0 right-0 z-10 h-full w-1 translate-x-1/2 cursor-col-resize hover:bg-accent/50 active:bg-accent/50"
-    />
+      className="group absolute top-0 right-0 z-10 flex h-full w-3 translate-x-1/2 cursor-col-resize items-center justify-center"
+    >
+      <div className="h-full w-px bg-border transition-colors group-hover:bg-accent group-active:bg-accent" />
+      <div className="pointer-events-none absolute rounded bg-bg-tertiary text-text-muted opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+        <GripVertical className="h-5 w-5" />
+      </div>
+    </div>
   );
 }
 
@@ -92,10 +94,10 @@ function PaneNavButton({ contentType, icon: Icon, title }: { contentType: PaneCo
         const { activePaneId, setPaneContent } = usePanesStore.getState();
         setPaneContent(activePaneId, contentType);
       }}
-      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${isActive ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
+      className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${isActive ? "bg-bg-tertiary text-text-primary" : "text-text-muted hover:bg-bg-tertiary hover:text-text-primary"}`}
       title={title}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-5 w-5" />
     </button>
   );
 }
@@ -129,26 +131,26 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
   if (collapsed) {
     return (
-      <aside className="flex h-full w-12 min-w-12 flex-col items-center border-r border-border bg-bg-secondary pt-8 pb-2">
+      <aside className="relative flex h-full w-[76px] min-w-[76px] flex-col items-center border-r border-border bg-bg-secondary pt-8 pb-2">
         {/* Expand */}
         <button
           onClick={toggle}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
           title="Expand sidebar"
         >
-          <PanelLeftOpen className="h-4 w-4" />
+          <PanelLeftOpen className="h-5 w-5" />
         </button>
 
         {/* Search */}
         <button
           onClick={() => onOpenCommandPalette?.()}
-          className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+          className="mt-1 flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
           title="Search (⌘K)"
         >
-          <Search className="h-4 w-4" />
+          <Search className="h-5 w-5" />
         </button>
 
-        <div className="mx-2 my-2 w-5 border-b border-border/40" />
+        <div className="mx-2 my-2 w-8 border-b border-border/40" />
 
         {/* Favorites */}
         <PaneNavButton contentType="favorites" icon={Star} title="Favorites" />
@@ -162,10 +164,10 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         {/* New Doc */}
         <button
           onClick={() => openNewPicker("doc")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-blue-400"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-blue-400"
           title="New Document"
         >
-          <FileText className="h-4 w-4" />
+          <FileText className="h-5 w-5" />
         </button>
 
         {/* Trash */}
@@ -178,13 +180,14 @@ export function Sidebar({ onOpenCommandPalette }: SidebarProps) {
           title={pickerType === "doc" ? "Create Document in..." : "Create Spreadsheet in..."}
           currentFolderId={currentFolderId}
         />
+        <ResizeHandle />
       </aside>
     );
   }
 
   return (
     <aside
-      className="relative flex h-full flex-col border-r border-border bg-bg-secondary"
+      className="relative flex h-full flex-col overflow-hidden border-r border-border bg-bg-secondary"
       style={{ width: sidebarWidth, minWidth: sidebarWidth }}
     >
       {/* ── Top: Account header (with traffic light padding on macOS) ── */}

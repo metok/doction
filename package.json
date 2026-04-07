@@ -1,6 +1,6 @@
 {
   "name": "doction",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A Notion-like desktop workspace powered by Google Drive",
   "author": "Mehmet Emin Tok",
   "license": "MIT",
